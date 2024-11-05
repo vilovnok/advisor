@@ -1,1 +1,5 @@
 .venv
+tets_note
+__pycache__/
+.pytest_cache
+data/qdrant_storage

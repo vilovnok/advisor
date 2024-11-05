@@ -12,6 +12,7 @@ def selected_model(model_name: str):
         raise ValueError(f"Модель '{model_name}' не найдена.")
     
 
+
 model_name = "Mistral"
 model, api_key = selected_model(model_name=model_name)
 llm = AdvisorLLM(api_key=api_key, model=model)
