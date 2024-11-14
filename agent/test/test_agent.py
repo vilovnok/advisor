@@ -1,5 +1,5 @@
-from src import AdvisorLLM
-from utils import get_model_info
+from agent.src import AdvisorLLM
+from agent.utils import get_model_info
 
 
 def selected_model(model_name: str):
