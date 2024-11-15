@@ -170,7 +170,7 @@ class Parser:
         return resume        
         
 
-    def create_file_cv(self, ex_period:str=None, limit_page:str=None):
+    def create_file_cv(self, ex_period:str='all_time', limit_page:str=None, limit_objects: int=None,):
         """ Получаем файл c СVs """
         
         resumes = []
@@ -178,9 +178,9 @@ class Parser:
             raise ValueError('Переменная ex_period не была передана. Пожалуйста, выбирите из предложенного перечня: "all_time", "noExperience".')
                 
         try:
-            for _, link in tqdm(self.get_links_cv(ex_period=ex_period, limit_page=int(limit_page)), desc="CV: Создаем файл"):
+            for _, link in tqdm(self.get_links_cv(ex_period=ex_period, limit_page=int(limit_page))[:limit_objects], desc="CV: Создаем файл"):
                 resume = self.get_user_cv(link)
-                resumes.append(resume)
+                resumes.append(resume)            
 
             with open(f"dataset/CV_{self.topic}.txt", "w", encoding="utf-8") as f:
                 for resume in tqdm(resumes):
@@ -356,14 +356,17 @@ class Parser:
         return full_info 
     
 
-    def create_file_vacancy(self, limit_page: int=None):
+    def create_file_vacancy(self, limit_page: int=None, limit_objects: int=None):
         """Создаем txt файл для всех вакансий с интервалом"""
 
         vacancies = self.get_links_vac(limit_page)
         filename = f'dataset/VAC_{self.topic}.txt'
 
+        if len(vacancies) < limit_objects:
+            limit_objects = None
+
         with open(filename, 'w') as f:
-            for vacancy in tqdm(vacancies, desc="Vacancy: Создаем файл"):  
+            for vacancy in tqdm(vacancies[:limit_objects], desc="Vacancy: Создаем файл"):  
 
                 vac_info = self.get_info_vacancy(vacancy[3])
 
@@ -385,5 +388,5 @@ class Parser:
                 f.write('\n' + '-' * 50 + '\n\n') 
         
         logging.basicConfig(level=logging.INFO, filemode="w",format="%(asctime)s %(levelname)s: %(message)s")
-        logging.info(f"Файл создан! Файл содержит вакансии в количестве {len(vacancies)}.")
+        logging.info(f"Файл создан! Файл содержит вакансии в количестве {len(vacancies[:limit_objects])}.")
         return filename

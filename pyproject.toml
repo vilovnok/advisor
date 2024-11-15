@@ -21,6 +21,8 @@ langgraph = "^0.2.46"
 pandas = "^2.2.3"
 langchain-ollama = "^0.2.0"
 mteb = "^1.19.6"
+aiofiles = "^24.1.0"
+asyncio = "^3.4.3"
 
 
 [tool.poetry.group.dev.dependencies]
