@@ -1,18 +1,18 @@
 import os
 import logging
 import argparse
-from parser import Parser
+from scraper.parser import Parser
 
 
 api_key = 'hIBq3oF9S5hz3YmoxEDmxK9OmZW91BSx'        
 model = "mistral-large-latest"
 
-dataset_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'dataset')
+data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data')
 
 
-if not os.path.exists(dataset_dir):
-    os.makedirs(dataset_dir)
-    print(f"Created directory: {dataset_dir}")
+if not os.path.exists(data_dir):
+    os.makedirs(data_dir)
+    print(f"Created directory: {data_dir}")
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')

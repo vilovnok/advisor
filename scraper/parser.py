@@ -178,11 +178,15 @@ class Parser:
             raise ValueError('Переменная ex_period не была передана. Пожалуйста, выбирите из предложенного перечня: "all_time", "noExperience".')
                 
         try:
-            for _, link in tqdm(self.get_links_cv(ex_period=ex_period, limit_page=int(limit_page))[:limit_objects], desc="CV: Создаем файл"):
-                resume = self.get_user_cv(link)
-                resumes.append(resume)            
+            links = self.get_links_cv(ex_period=ex_period, limit_page=int(limit_page))
+            
+            if len(links) < limit_objects: limit_objects = None
 
-            with open(f"dataset/CV_{self.topic}.txt", "w", encoding="utf-8") as f:
+            for _, link in tqdm(links[:limit_objects], desc="CV: Создаем файл"):
+                resume = self.get_user_cv(link)
+                resumes.append(resume)             
+
+            with open(f"data/CV_{self.topic}.txt", "w", encoding="utf-8") as f:
                 for resume in tqdm(resumes):
 
                     f.write(f"Ищет работу на должность: {resume['name']}\n")
@@ -360,10 +364,9 @@ class Parser:
         """Создаем txt файл для всех вакансий с интервалом"""
 
         vacancies = self.get_links_vac(limit_page)
-        filename = f'dataset/VAC_{self.topic}.txt'
+        filename = f'data/VAC_{self.topic}.txt'
 
-        if len(vacancies) < limit_objects:
-            limit_objects = None
+        if len(vacancies) < limit_objects: limit_objects = None
 
         with open(filename, 'w') as f:
             for vacancy in tqdm(vacancies[:limit_objects], desc="Vacancy: Создаем файл"):  

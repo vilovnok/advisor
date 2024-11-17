@@ -3,3 +3,5 @@ tets_note
 __pycache__/
 .pytest_cache
 dataset
+data
+temp
