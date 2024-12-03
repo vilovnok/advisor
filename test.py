@@ -11,7 +11,7 @@ llm = LLM(model=MODEL_PATH)
 # 2. Определение параметров сэмплирования
 sampling_params = SamplingParams(
     temperature=0.7,
-    max_tokens=200,
+    max_tokens=300,
     top_p=0.9,
     top_k=40
 )
