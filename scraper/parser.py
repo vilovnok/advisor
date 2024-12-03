@@ -227,7 +227,7 @@ class Parser:
         try:
             professional_roles = soup.find(attrs={"class": "resume-block__specialization"}).text
         except:
-            professional_roles = []   
+            professional_roles = '-'   
         try:
             schedule_employment = [shell.get_text(separator=' ', strip=True) for shell in soup.find(attrs={"class": "resume-block-container"}).find_all("p")]
             employment = schedule_employment[0].split(':')[-1]
@@ -236,21 +236,21 @@ class Parser:
             employment = self.classifier_employment_cv(employment)            
             schedule = self.classifier_schedule_cv(schedule)
         except:
-            employment, schedule = [], []       
+            employment, schedule = '-', '-'       
         try:
             language = ", ".join([lang.get_text(separator=' ', strip=True) for lang in soup.find_all(attrs={"data-qa": "resume-block-language-item"})])
         except:
-            language = []
+            language = '-'
         try:
             education = ", ".join([edu.get_text(separator=' ', strip=True) for edu in soup.find_all(attrs={"data-qa": "resume-block-education"})])
             education = self.classifier_edu_cv(education)
         except:
-            education = []
+            education = '-'
 
         try:
             location = ", ".join([loc.get_text(separator=' ', strip=True).replace("\xa0", " ") for loc in soup.find_all(attrs={"data-sentry-source-file": "ResumePersonalLocation.jsx"})])            
         except:
-            location = []
+            location = '-'
         try:
             description = soup.find_all(attrs={"data-qa": "resume-block-experience"})
             description = self.cleaner_cv(description)            
@@ -260,16 +260,16 @@ class Parser:
 
 
         resume = {
-            "name": name if name else "-",                                
-            "experience": experience if experience else "-",        
+            "name": name,                                
+            "experience": experience,
             "description": description,
-            "skills": skills if skills else "-",
-            'employment': employment if schedule_employment else "-",
-            "schedule":  schedule if schedule_employment else "-",
-            "professional_roles": professional_roles if professional_roles else "-",        
-            "language": language if language else "-",        
-            "location": location if location else "-",        
-            "education": education if education else "-",        
+            "skills": skills,
+            'employment': employment,
+            "schedule":  schedule,
+            "professional_roles": professional_roles,
+            "language": language,
+            "location": location,
+            "education": education,
         }
         return resume        
         
