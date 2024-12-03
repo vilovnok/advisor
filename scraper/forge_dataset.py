@@ -81,9 +81,9 @@ class ForgeDataset():
         """ Кластеризируем контент """   
 
         if pertain == 'vac': 
-            match=r'Имя вакансии: (.*?)\n'
+            match=r'Вакансия: (.*?)\n'
         else:
-            match = r'Ищет работу на должность: (.*?)\n'
+            match = r'Резюме: (.*?)\n'
 
         topics = []
         clasters = dict()     

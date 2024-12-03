@@ -1,24 +1,25 @@
 import pandas as pd
-
+import tqdm
 import requests
 from torch.cuda import is_available
 
 from typing import List, Union
 from pathlib import Path
-from enum import Enum
+
+from datasets import Dataset
 
 from sentence_transformers import SentenceTransformer
 from qdrant_client import QdrantClient, models
 
+from agent.utils import EmbedModelType
 
-class ModelType(Enum):
-    RUBERT_TINY_2 = "cointegrated/rubert-tiny2"
-    DEEPVK_USER = "deepvk/USER-bge-m3"
+from fastembed.sparse.bm25 import Bm25
+from fastembed.late_interaction import LateInteractionTextEmbedding
+
 
 
 class Retriever:
     def __init__(self, 
-                 model_type: ModelType, 
                  localhost: str='0.0.0.0',
                  port: int=6333,
                  dataset_dir: str='./dataset',
@@ -26,24 +27,9 @@ class Retriever:
         ) -> None:
 
         self.dataset_dir = dataset_dir
-        self._model_type = model_type   
         self._device = 0 if (device is None and is_available()) else device
-
-        self._model = self._setup_model()        
-        self._client = self._setup_database(localhost=localhost, port=port)
-    
-
-    def _setup_model(self):
-        if self._model_type == ModelType.DEEPVK_USER:
-            model = SentenceTransformer(
-                ModelType.DEEPVK_USER.value,
-                device=self._device
-            )
-        else:
-            raise NotImplementedError()
-
-        return model
-    
+      
+        self._client = self._setup_database(localhost=localhost, port=port)    
     
     def _setup_database(self, localhost: str, port: int):        
         if not requests.get(f'http://{localhost}:{port}'):
@@ -52,23 +38,68 @@ class Retriever:
         client = QdrantClient(location=localhost, port=port)
 
         return client
-
-
-    def encode(self, text: Union[List[str], str]):
-        if self._model_type == ModelType.DEEPVK_USER:
-            embeddings = self._model.encode(text, normalize_embeddings=True)
-        else:
-            raise NotImplementedError()
-        
-        return embeddings
     
+
+    def _setup_model(self, model_type: EmbedModelType):        
+        if model_type == EmbedModelType.DEEPVK_USER:
+            model = SentenceTransformer(
+                    EmbedModelType.DEEPVK_USER.value,
+                    device=self._device
+                )
+            
+        elif model_type == EmbedModelType.MiniLM:
+            model = SentenceTransformer(
+                    EmbedModelType.MiniLM.value,
+                    device=self._device
+                )
+            
+        elif model_type == EmbedModelType.BM25:
+            model = Bm25(EmbedModelType.BM25.value)
+
+        elif model_type == EmbedModelType.BERT:                
+            model = LateInteractionTextEmbedding(EmbedModelType.BERT.value)
+
+        return model
+
+
+    def encode(self, text: Union[List[str], str], model_type: EmbedModelType=None):
+        try:
+            if model_type == EmbedModelType.DEEPVK_USER:
+                       
+                embeddings = SentenceTransformer(
+                    EmbedModelType.DEEPVK_USER.value,
+                    device=self._device
+                ).encode(text, normalize_embeddings=True)
+            elif model_type == EmbedModelType.MiniLM:
+                           
+                embeddings = SentenceTransformer(
+                    EmbedModelType.MiniLM.value,
+                    device=self._device
+                ).encode(text, normalize_embeddings=True)
+            elif model_type == EmbedModelType.BM25:
+                
+                bm25_embedding_model = Bm25(EmbedModelType.BM25.value)
+                embeddings = bm25_embedding_model.passage_embed(text)
+            elif model_type == EmbedModelType.BERT:
+                
+                late_interaction_embedding_model = LateInteractionTextEmbedding(EmbedModelType.BERT.value)
+                embeddings = late_interaction_embedding_model.passage_embed(text)
+            else:
+                raise ValueError('Модель не выбрана')
+
+            return embeddings
+    
+        except Exception as err:
+            raise Exception(f'Ошибка при кодировании текста: {err}')
+    
+
     def search(
             self,
             query: str,
             collection_name: str,
             topk: int = 10,
             filter_options: dict = None,
-            score_threshold: float = None
+            score_threshold: float = 0.0
         ):
         try:
             embedding = self.encode(query)
@@ -84,14 +115,14 @@ class Retriever:
                 ) if filter_options else None,
                 score_threshold=score_threshold
             )
-
             return results
-        finally:
-            if hasattr(self._client, 'close'):
-                self._client.close() 
+        except Exception as error:
+            raise Exception(f'Ошибка при поиске: {error}')
     
-
-    def create_database(self, embedding: list, collection_name: str=None):
+    def create_database(self, 
+                        dense_embeddings: list, 
+                        late_interaction_embeddings: list, 
+                        collection_name: str='advisor_db'):
         """ Create the database """
         try:
             if self._client.collection_exists(collection_name=collection_name):
@@ -99,14 +130,34 @@ class Retriever:
 
             self._client.create_collection(
                 collection_name=collection_name,
-                    vectors_config=models.VectorParams(
-                    size=len(embedding),
-                    distance=models.Distance.COSINE
-                )
+                vectors_config={
+
+                    "all-MiniLM-L6-v2":models.VectorParams(
+                        size=len(dense_embeddings[EmbedModelType.MiniLM]),
+                        distance=models.Distance.COSINE
+                    ),
+
+                    "colbertv2.0": models.VectorParams(
+                        size=len(late_interaction_embeddings[0][0]),
+                        distance=models.Distance.COSINE,
+                        multivector_config=models.MultiVectorConfig(
+                            comparator=models.MultiVectorComparator.MAX_SIM,
+                            )
+                        ),
+                    "deepvk/USER-bge-m3":models.VectorParams(
+                        size=len(dense_embeddings[EmbedModelType.DEEPVK_USER]),
+                        distance=models.Distance.COSINE
+                    ),
+
+                },
+                sparse_vectors_config={
+                    "bm25": models.SparseVectorParams(
+                    modifier=models.Modifier.IDF,
+                    )
+                }
             )
-        finally:
-            if hasattr(self._client, 'close'):
-                self._client.close() 
+        except Exception as error:
+            raise Exception(f'Ошибка при создании базы: {error}')
 
 
     def delete_database(self, collection_name: str):
@@ -114,9 +165,8 @@ class Retriever:
 
         try:
             self._client.delete_collection(collection_name=collection_name)
-        finally:
-            if hasattr(self._client, 'close'):
-                self._client.close() 
+        except Exception as error:
+            raise Exception(f'Ошибка при удалении базы: {error}')
     
     def get_all_files(self):
         """ Получить все файла в директории dataset_dir """
@@ -134,6 +184,52 @@ class Retriever:
             df_combined = pd.concat([df_combined, df], ignore_index=True)
         
         return df_combined
+    
+
+    def upload_db(self, collection_name: str, batch_size: int=4):
+        """ Загружаем данные в базу """
+
+        files = self.get_all_files()
+        df = self.combined_df(files).reset_index()
+        
+        dataset = Dataset.from_pandas(df)
+        
+        dense_embedding_model_MiniLM = self._setup_model(EmbedModelType.MiniLM)
+        dense_embedding_model_DEEPVK_USER = self._setup_model(EmbedModelType.DEEPVK_USER)
+        
+        bm25_embedding_model = self._setup_model(EmbedModelType.BM25)
+        late_interaction_embedding_model = self._setup_model(EmbedModelType.BERT)
+
+        for batch in tqdm.tqdm(dataset.iter(batch_size=batch_size), total=len(dataset) // batch_size):
+            try:
+                dense_embeddings_MiniLM = list(dense_embedding_model_MiniLM.encode(batch["content"]))
+                dense_embeddings_DEEPVK_USER = list(dense_embedding_model_DEEPVK_USER.encode(batch["content"]))
+                bm25_embeddings = list(bm25_embedding_model.passage_embed(batch["content"]))
+                late_interaction_embeddings = list(late_interaction_embedding_model.passage_embed(batch["content"]))
+
+                self._client.upload_points(
+                    collection_name=collection_name,
+                    points=[
+                        models.PointStruct(
+                            id=int(batch["index"][i]),
+                            vector={
+                                "all-MiniLM-L6-v2": dense_embeddings_MiniLM[i].tolist(),
+                                "deepvk/USER-bge-m3": dense_embeddings_DEEPVK_USER[i].tolist(),
+                                "bm25": bm25_embeddings[i].as_object(),
+                                "colbertv2.0": late_interaction_embeddings[i].tolist(),
+                            },
+                            payload={
+                                "catalog": batch["catalog"][i],
+                                "category": batch["category"][i],
+                                "content": batch["content"][i],
+                            }
+                        )
+                        for i, _ in enumerate(batch["index"])
+                    ],
+                    batch_size=batch_size,  
+                )
+            except Exception as error:
+                raise Exception(f'Ошибка при загрузке в базу: {error}')
 
 
     def upload_database(self, collection_name: str):
@@ -144,6 +240,7 @@ class Retriever:
             df = self.combined_df(files)
 
             embeddings = self.encode(df["content"].to_list())
+
             for idx, row in df.iterrows():
                 self._client.upsert(
                     collection_name=collection_name,
@@ -159,6 +256,5 @@ class Retriever:
                         )
                     ]
                 )
-        finally:
-            if hasattr(self._client, 'close'):
-                self._client.close()     
+        except Exception as error:
+            raise Exception(f'Ошибка при загрузке в базу: {error}')

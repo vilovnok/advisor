@@ -1,0 +1,321 @@
+,catalog,category,content
+0,vac,devops,"Вакансия: DevOps-инженер
+Опыт работы: От 1 года до 3 лет
+Описание: Компания занимается заказной разработкой и ИТ аутсорсингом, использует технологии GitlabCI, ArgoCD, Helm, Nexus, Elastic, Docker, Kubernetes, PostgreSQL, Clickhouse, требует опыт разработки и поддержки CI/CD/CM/CT процессов, опыт работы с продуктами Helm, Nexus и стеком Elastic, будет плюсом владение Go или Python, опыт работы с решениями контейнеризации и оркестрации, опыт работы с PostgreSQL и Clickhouse, знание основ микросервисной архитектуры
+Ключевые навыки: Linux, Bash, Ansible, Docker, CI/CD, Jenkins, Kubernetes, SQL.
+Тип занятости: Полная занятость
+График работы: Полный день
+Знание языков: Английский
+Образование: False"
+1,vac,devops,"Вакансия: DevOps - инженер
+Опыт работы: От 3 до 6 лет
+Описание: Компания занимается производством светотехники, электротоваров и аксессуаров, товаров для дома, использует технологии Kubernetes, S3, AWS, CI/CD, Ansible, Terraform, Bash, Nginx/HAProxy, Mysql cluster, Kafka, Salt Stack, Grafana/Prometheus/Sentry/Mule/ELK/Zabbix, Gitlab, Python; требует опыт администрирования Linux серверов (Ubuntu/Debian) от 5 лет, экспертные знания Kubernetes, S3, AWS, практика построения и поддержки CI/CD, создания Ansible или Terraform скриптов, умение программировать на Bash, опыт администрирования Nginx/HAProxy, Mysql cluster, Kubernetes, Kafka
+Ключевые навыки: Zabbix, IIS, Мобильность, Apache HTTP Server, Автоматизация процессов.
+Тип занятости: Полная занятость
+График работы: Полный день
+Знание языков: unknown
+Образование: False"
+2,vac,devops,"Вакансия: DevOps (SQL направление)
+Опыт работы: От 3 до 6 лет
+Описание: Компания занимается разработкой ПО и проектов для корпораций, использует технологии Teamcity, Octopus Deploy, Gitlab CI CE, MSSQL, linter, sonarqube, jira, confluence, ansible, terraform, powershell, bash, Zabbix, стек ELK, стек Prometheus-Grafana, предлагает официальное трудоустройство, ежегодную индексацию зарплаты, 28 дней отпуска, 5 relax days, медстраховку, технику, оплату обучения и подписок, требует опыта работы с MSSQL, TSQL, Powershell, Bash, Gitlab CI, Teamcity, Git, сетевыми протоколами, IaC, DevOps, Zabbix, стек ELK, стек Prometheus-Grafana, Ansible, Terraform, будет плюсом знание других скриптовых языков, опыт работы с Octopus Deploy, понимание высоконагруженных/высокодоступных систем
+Ключевые навыки: unknown
+Тип занятости: Полная занятость
+График работы: Полный день
+Знание языков: Английский
+Образование: False"
+3,vac,devops,"Вакансия: SRE/DevOps-инженер
+Опыт работы: От 3 до 6 лет
+Описание: Описание: Компания занимается автоматизацией маркетинга, разрабатывает HighLoad SaaS сервисы, использует технологии Linux, Kubernetes, Docker, Postgres, ClickHouse, Redis, memcached, RabbitMQ, Grafana, PromQL, PHP, Golang, Java/Kotlin, Bash, Ansible, Terraform, Apache Airflow, TypeScript, Python, NodeJS, Deckhouse Kubernetes Platform, Graylog, Prometheus, GitLab, Active Directory, MS RDS, werf, требует опыт администрирования серверов Linux, эксплуатации приложений в системах оркестрации и контейнеризации, работы с СУБД и NoSQL базами данных, брокерами очередей, дашбордами в Grafana, умение разбираться в чужом коде, предлагает удаленную работу, гибрид, офис, график 5/2, рост ЗП, компенсацию фитнеса, 3 оплачиваемых day-off в год, лояльный менеджмент
+Ключевые навыки: CI/CD, PostgreSQL, Kubernetes, Grafana, Jenkins, SQL, GitlabCI, Linux, Docker, Bash.
+Тип занятости: Полная занятость
+График работы: Удаленная работа
+Знание языков: unknown
+Образование: False"
+4,vac,devops,"Вакансия: DevOps
+Опыт работы: Более 6 лет
+Описание: Описание: Компания занимается ИТ-сервисами и инновационными продуктами, использует технологии IaC, GitOps, CI/CD, Kubernetes, Docker, Ansible, Terraform, Prometheus, Grafana, ELK, PostgreSQL, MongoDB, ClickHouse, требует опыт работы от 5 лет в роли DevOps, знание Linux/Windows, сетевых протоколов, инструментов виртуализации и мониторинга, опыт разработки CI/CD пайплайнов, описания инфраструктуры через Terraform, работы с базами данных, Docker, Kubernetes, облачными провайдерами 
+Ключевые навыки: Linux, Bash, Kubernetes, Jenkins, Docker, Git.
+Тип занятости: Полная занятость
+График работы: Удаленная работа
+Знание языков: unknown
+Образование: False"
+5,vac,devops,"Вакансия: Specialist DevOps
+Опыт работы: От 3 до 6 лет
+Описание: Описание: Компания занимается проектированием и разработкой архитектуры для микросервисных решений, анализом архитектуры, внедрением процессов CI/CD, развитием digital решений, управлением ИТ-инфраструктурой, подбором сервис-провайдеров. Использует Kubernetes, Terraform, Ansible, Helm, Kustomize, Argo, Docker, Gitlab, ELK, Kafka, Zabbix, Prometheus, Grafana, APM, HAProxy, Istio, Traefik, PostgreSQL, Python, Golang. Требуется опыт работы с облаками, Kubernetes, Helm, Kustomize, Terraform, ArgoCD, Ansible, CI/CD в Gitlab, Linux, git, RabbitMQ, Kafka, PostgreSQL, ClickHouse, HAProxy, Istio, Traefik, Prometheus, ELK, OpenTelemetry, понимание принципов построения распределенных систем. 
+Ключевые навыки: Docker, Kubernetes, PostgreSQL, Zabbix, Prometheus, Ansible, k8s, Python, Bash, Argo, Yandex Cloud, Istio, Kustomize, Kafka, GitLab CI, Terraform, CI/CD.
+Тип занятости: Полная занятость
+График работы: Удаленная работа
+Знание языков: unknown
+Образование: False"
+6,vac,devops,"Вакансия: DevOps engineer
+Опыт работы: От 3 до 6 лет
+Описание: Описание: Компания занимается беттинг проектом, использует технологии GitLab CI, Docker, Kubernetes, Prometheus, Grafana, PostgreSQL, ClickHouse, Kafka, Nginx, Git, требует опыта работы в роли DevOps инженера, глубоких знаний Linux/Unix систем, предлагает официальное трудоустройство, гибридный рабочий график, современный стек технологий, работу над интересными проектами в дружной команде, обсуждаемую зарплату
+Ключевые навыки: unknown
+Тип занятости: Полная занятость
+График работы: Полный день
+Знание языков: unknown
+Образование: False"
+7,vac,devops,"Вакансия: Senior DevOps Engineer
+Опыт работы: От 3 до 6 лет
+Описание: Описание: Компания занимается HR-технологиями, использует технологии k8s, Docker, Gitlab, Helm, Bash, Ansible, Terraform, Яндекс Облако, On-premise, MongoDB, Elasticsearch, PostgreSQL, Redis, RabbitMQ, Kafka, Prometheus, Victoria Metrics, Grafana, ELK, MinIO, .NET Core, NodeJS, предлагает участие в масштабных проектах, требует опыт работы с kubernetes, helm, docker, docker compose, linux, ansible, bash, системами мониторинга, СУБД и очередями, опыт работы devops от 2 лет, опыт работы разработчиком от 2 лет 
+Ключевые навыки: unknown
+Тип занятости: Полная занятость
+График работы: Гибкий график
+Знание языков: unknown
+Образование: False"
+8,vac,devops,"Вакансия: DevOps-инженер
+Опыт работы: От 3 до 6 лет
+Описание: Компания занимается разработкой продуктов для крупного банка, использует технологии CI/CD, Docker, Kubernetes, Git, Bash, Jenkins, TeamCity, Bamboo, ArgoCD, Flux, JFrog Artifactory, Nexus, ProGet, Ansible, предлагает удаленную работу, возможность профессионального развития и корпоративную культуру
+Ключевые навыки: Kubernetes, CI/CD, Bash, Jenkins, Docker.
+Тип занятости: Полная занятость
+График работы: Удаленная работа
+Знание языков: unknown
+Образование: False"
+9,vac,devops,"Вакансия: Системный администратор Linux / Kubernetes (Middle DevOps инженер)
+Опыт работы: От 1 года до 3 лет
+Описание: Описание: Компания занимается in-house разработкой массовых онлайн-сервисов и софтов, инструментов для партнёрского маркетинга, лидирует на рынке дистрибуции софта в странах СНГ, использует технологии Kubernetes, Google Cloud, OVH, DigitalOcean, Helm, Ansible, Docker, LXC, Prometheus, Loki, Grafana, Jenkins, MySQL, MongoDB, Redis, Node.js, Python, Next.js, Nginx, требует опыт системного администратора Linux или DevOps-инженера, предлагает гибкий график, удалённую работу, современный стек технологий, помощь в освоении нового, интересные задачи, достойную оплату 
+Ключевые навыки: Kubernetes, Docker, Linux, Ansible, Администрирование серверов Linux.
+Тип занятости: Полная занятость
+График работы: Удаленная работа
+Знание языков: unknown
+Образование: False"
+10,vac,backend,"Вакансия: Junior Backend разработчик NodeJS
+Опыт работы: От 1 года до 3 лет
+Описание: Описание: Компания занимается торговлей на российских маркетплейсах, использует технологии NodeJs, Express, NestJS, Postgresql, Sequelize, GitLab, pm2, требует опыта работы с API через NodeJs, знание DevOps (Gitlab CI/CD, Docker, Ansible) поощряется 
+Ключевые навыки: Node.js, express, Gitlab, PostgreSQL.
+Тип занятости: Полная занятость
+График работы: Полный день
+Знание языков: unknown
+Образование: False"
+11,vac,backend,"Вакансия: Blockchain Engineer (Go)
+Опыт работы: От 3 до 6 лет
+Описание: Компания занимается интеграцией, исследованием и разработкой в экосистеме Web3, использует технологии Go, Solidity, Cosmos SDK, Ethereum, DevOps, CI/CD, Kubernetes, требует опыта работы с Web3 протоколами, опыта в блокчейн индустрии, особенно в DeXes, ликвидности и оркестрах, опыта развертывания сложных смарт-контрактов на Ethereum, требует от кандидата ответственности и профессионализма
+Ключевые навыки: soiidity, Git, aws, blockchain, evm, etherium, Golang, go.
+Тип занятости: Полная занятость
+График работы: Полный день
+Знание языков: Русский (свободный), Английский (B2)
+Образование: False"
+12,vac,backend,"Вакансия: Senior Golang Developer (Hotcore)
+Опыт работы: Более 6 лет
+Описание: Компания занимается развитием сервисов для формирования тарифов отелей, прайсинга, фильтрации и сортировки предложений, использует Golang и Python с Django, требует опыта коммерческой разработки от 6 лет, опыта разработки web сервисов на Golang от 3 лет, понимания работы современных СУБД, опыта профилирования Golang приложений, умения договориться с DevOps-инженерами, уровня английского языка B1 и выше
+Ключевые навыки: Golang, SQL.
+Тип занятости: Полная занятость
+График работы: Удаленная работа
+Знание языков: Английский
+Образование: False"
+13,vac,backend,"Вакансия: Senior Go (Golang) Developer
+Опыт работы: От 3 до 6 лет
+Описание: Описание: Стартап в сфере финансовых технологий, разрабатывает платформу для цифровых финансовых активов, использует Go, Rust, Docker, Kubernetes, Git, Gin, Echo, PostgreSQL, требует опыта работы с веб-технологиями, микросервисами, контейнеризацией, оркестрацией, системами управления версиями, знание принципов безопасности веб-приложений, опыт разработки на Go от 3 лет, предлагает удаленный формат работы, гибкий подход к задачам, конкурентную заработную плату, ДМС, карьерные перспективы 
+Ключевые навыки: Golang, Go, HTTP, RESTful API, Gin, Echo, Revel, Docker, Kubernetes, Git, MySQL, PostgreSQL, AWS, Azure, Google Cloud Platform, Python.
+Тип занятости: Полная занятость
+График работы: Удаленная работа
+Знание языков: unknown
+Образование: False"
+14,vac,backend,"Вакансия: Senior Python-developer (Django)
+Опыт работы: Более 6 лет
+Описание: Описание: Компания занимается продуктовой разработкой стартапов и цифровой трансформацией бизнеса, использует Python 3.12, Django, Django REST framework, Celery, PostgreSQL, RabbitMQ, Docker, k8s, PyTest, Scrum, требует опыт работы с Python от 5 лет, асинхронный Python, Django, NoSQL, брокеры сообщений, Docker, Kubernetes, FastAPI, ищет разработчиков Middle+ / Senior уровня 
+Ключевые навыки: Python, Docker, Django, SQL, NoSQL.
+Тип занятости: Полная занятость
+График работы: Удаленная работа
+Знание языков:  Знание языка: английский 
+Образование: False"
+15,vac,backend,"Вакансия: Senior Backend Developer
+Опыт работы: От 3 до 6 лет
+Описание: Описание: Компания занимается развитием игрового f2p и casual направления, использует Node.js, TypeScript, C#, Golang, PostgreSQL, Docker, Git, RESTful API, микросервисы, облачные платформы (AWS, Google Cloud, Azure), GraphQL, CI/CD, DevOps инструменты (Terraform, Ansible), требует опыт работы не менее 5 лет, знание принципов работы сетей и безопасности, опыт работы с системами мониторинга и логирования, отличные коммуникативные навыки и способность работать в команде 
+Ключевые навыки: JavaScript, Node.js, PostgreSQL, TypeScript, MongoDB, Git, C#, Golang.
+Тип занятости: Полная занятость
+График работы: Полный день
+Знание языков: unknown
+Образование: False"
+16,vac,backend,"Вакансия: Senior Golang developer (IoT платформа)
+Опыт работы: От 3 до 6 лет
+Описание: Компания занимается разработкой облачной платформы Cloud X с сервисами по направлениям ИИ, машинное обучение, интеграционные сервисы, медиа, IoT, Big Data, DevOps, DevLabs, Management, Cybersecurity и т.д., использует Golang, Kubernetes, PostgreSQL, Redis, Kafka, требует опыт коммерческой разработки на Golang от 4-х лет, навыки проектирования и разработки REST API, понимание микросервисной архитектуры, знания экосистемы Cloud-Native (Kubernetes API, Istio/Linkerd, Prometheus, Jaeger), опыт работы с PostgreSQL, Redis, Kafka, опыт написания расширений для Envoy, опыт разработки на Java/Kotlin/C++
+Ключевые навыки: Kubernetes, Kafka, Go, Golang, API.
+Тип занятости: Полная занятость
+График работы: Полный день
+Знание языков: Английский
+Образование: False"
+17,vac,backend,"Вакансия: Python backend developer
+Опыт работы: От 3 до 6 лет
+Описание: Описание: Компания занимается безопасностью, оптимизацией и управлением корпоративными рабочими местами, использует Python, Docker, Ansible, REST API, Linux, DevOps, asyncio, aiohttp/FastAPI, требует опыт разработки backend от 3 лет, знание принципов безопасности веб-приложений, предлагает работу с высокотехнологичными продуктами, корпоративное обучение, достойный оклад, ДМС, гибридный формат работы, гибкий график, комфортный офис
+Ключевые навыки: Python, Git, REST, REST API, asyncio, aiohttp, Linux, Docker, API, SQL.
+Тип занятости: Полная занятость
+График работы: Полный день
+Знание языков: unknown
+Образование: False"
+18,vac,backend,"Вакансия: Senior Scala Backend Developer
+Опыт работы: От 3 до 6 лет
+Описание: Описание: Компания занимается разработкой продукта, использует Scala, ZIO, Akka, Cats, Postgres, Redis, NATS, ELK, Sentry, Vanilla JS, React/Redux, Ant Design, k8s, docker, gitlab, требует опыта работы от 3 лет, знание Scala, принципов ФП и ООП, опыт работы с Cats, Akka, реляционными БД, желательно опыт работы с ZIO, docker/kubernetes, Nginx, DDD, микросервисной архитектурой, высоконагруженными системами, jvm/jmm/GC, linux/bash
+Ключевые навыки: Docker, PostgreSQL, Linux, Akka, Scala.
+Тип занятости: Полная занятость
+График работы: Полный день
+Знание языков: unknown
+Образование: False"
+19,vac,backend,"Вакансия: Старший разработчик JavaScript (Node.js/back-end)
+Опыт работы: От 3 до 6 лет
+Описание: Описание: Компания занимается онлайн-сервисом для организации путешествий, использует Node.js (Express, Nest), Golang, Python, базы данных Riak, MongoDB, Postgresql, Mysql, Redis, RabbitMq, инфраструктура на принципах IaC, кросс-функциональные команды, Scrum, требуется уверенное знание Node.js, опыт разработки от 3-х лет, опыт создания серверных приложений, проектирование архитектуры, знание технологий и протоколов передачи данных 
+Ключевые навыки: JavaScript, Node.js.
+Тип занятости: Полная занятость
+График работы: Полный день
+Знание языков:  Знание языка: Английский 
+Образование: False"
+20,cv,devops,"Резюме: DevOps
+Опыт работы 5 лет 1 месяц
+Описание: unknown
+Ключевые навыки: Cisco, Английский язык, Чешский язык, Водительское удостоверение категории B, Грамотная речь, Работа с большим объемом информации, Работа в команде, Пользователь ПК, Грамотность, ICND1, Java Fundamentals, Linux, Docker, Kubernetes, Деловое общение, Деловая переписка, Локальные сети, AutoCAD, Компас, Информационная безопасность, Jenkins
+Тип занятости: unknown
+График работы: unknown
+Знание языков: Русский — Родной, Английский — B1 — Средний, Чешский — B2 — Средне-продвинутый
+Образование: True"
+21,cv,devops,"Резюме: DevOps
+Опыт работы 10 лет 2 месяца
+Описание: unknown
+Ключевые навыки: PHP, JavaScript, MySQL, jQuery, Git, HTML5, 1С-Битрикс, PostgreSQL, ООП, Yii, Bootstrap, MVC, MongoDB, CI/CD, автотесты Python, Ansible, Terraform, Zabbix, Docker, Bash, Nginx, Apache HTTP Server, mssql, Docker-compose, Gitlab, SOAP, Linux, Prometheus
+Тип занятости:  полная занятость, частичная занятость, проектная работа
+График работы:  гибкий график, удаленная работа
+Знание языков: Русский — Родной, Английский — B2 — Средне-продвинутый
+Образование: True"
+22,cv,devops,"Резюме: DevOps
+Опыт работы 10 лет 1 месяц
+Описание: unknown
+Ключевые навыки: Percona, CICD, Ansible, Bash, Restapi, Jenkins, Zabbix, Python, OpenShift, Kafka, Bitbucket, ELK, Vault, Gradle, Groovy, Apache Maven, Spring Framework, Redhat, Prometheus, IaaS, PaaS, SaaS, Английский язык, SQL, Gitlab, Yandex Cloud, Docker Compose, GitLab CI, Helm
+Тип занятости: unknown
+График работы: unknown
+Знание языков: Русский — Родной, Английский — B2 — Средне-продвинутый
+Образование: True"
+23,cv,devops,"Резюме: DevOps
+Опыт работы 14 лет 4 месяца
+Описание: unknown
+Ключевые навыки: Linux, Docker
+Тип занятости: unknown
+График работы: unknown
+Знание языков: Русский — Родной, Английский — B1 — Средний
+Образование: True"
+24,cv,devops,"Резюме: DevOps engineer
+Work experience 5 years
+Описание: unknown
+Ключевые навыки: Linux, Docker, Bash, Ansible, SQL, Jenkins, Unix, DevOps, OpenShift, Git, Gitlab, Администрирование, Kubernetes
+Тип занятости: unknown
+График работы: unknown
+Знание языков: Russian — Native, English — B1 — Intermediate
+Образование: True"
+25,cv,devops,"Резюме: DevOps
+Опыт работы 14 лет 3 месяца
+Описание: unknown
+Ключевые навыки: Управление разработкой, Azure DevOps, PowerShell, Jenkins, Git, Bash, Ansible, Nexus, Docker, Kubernetes, OpenShift, Groovy, Kafka, Nginx, TeamCity, PostgreSQL, SQL, Grafana, DevOps, Helm, Prometheus, CI/CD, Linux, YAML, Kotlin
+Тип занятости: unknown
+График работы: unknown
+Знание языков: Русский — Родной, Английский — A2 — Элементарный
+Образование: True"
+26,cv,devops,"Резюме: DevOps
+Опыт работы 21 год 11 месяцев
+Описание: unknown
+Ключевые навыки: Active Directory, WSUS, DHCP, VPN, MS SQL Server, TCP/IP, Hyper-V, Администрирование сетевого оборудования, Администрирование серверов Windows, Администрирование сайтов, Управление проектами, Настройка серверов, Администрирование серверов, Деловая переписка, Руководство коллективом, Работа в команде, Linux, VMware, MySQL, Ubuntu Server, Python, Cisco, Docker, SCCM, PowerShell, Cisco Prime, RunDeck, Netbox, Git, Настройка DNS
+Тип занятости:  полная занятость
+График работы:  полный день, удаленная работа
+Знание языков: Русский — Родной, Английский — B1 — Средний
+Образование: True"
+27,cv,devops,"Резюме: DevOps-инженер
+Опыт работы 2 года 10 месяцев
+Описание: unknown
+Ключевые навыки: Python, Linux, Git
+Тип занятости:  полная занятость, частичная занятость, стажировка
+График работы:  полный день, гибкий график, удаленная работа
+Знание языков: Русский — Родной, Английский — B1 — Средний
+Образование: True"
+28,cv,devops,"Резюме: DevOps
+Опыт работы 3 года 8 месяцев
+Описание: unknown
+Ключевые навыки: MATLAB, Си, Git, Linux, Docker, CI/CD, Администрирование, Ubuntu, DevOps, Kubernetes, Jenkins, OpenShift, Ansible, PostgreSQL
+Тип занятости:  полная занятость
+График работы:  полный день, сменный график, гибкий график, удаленная работа
+Знание языков: Русский — Родной, Английский — A2 — Элементарный
+Образование: True"
+29,cv,devops,"Резюме: DevOps-инженер
+Опыт работы 16 лет 3 месяца
+Описание: unknown
+Ключевые навыки: быстрая обучаемость, Коммуникабельность, Креативность, Стрессоустойчивость, умение читать документацию, Bash, Python, Docker, Kubernetes, Nginx, DevOps, Git, OpenShift, Gitlab, Helm
+Тип занятости:  полная занятость, частичная занятость
+График работы:  полный день, сменный график, гибкий график, удаленная работа
+Знание языков: Русский — Родной, Английский — B1 — Средний
+Образование: True"
+30,cv,frontend,"Резюме: Frontend-разработчик
+Опыт работы 2 года 11 месяцев
+Описание: unknown
+Ключевые навыки: Веб-программирование, Front-end, JS, HTML5, JavaScript, CSS3, TypeScript, Sass, БЭМ, Фреймворки, Программирование, Адаптивная верстка, Умение работать в команде, REST API, Java Script, Vue.js, VueJS, Декомпозиция задач, Умение разбираться в чужом коде
+Тип занятости:  полная занятость
+График работы:  полный день, гибкий график
+Знание языков: Русский — Родной, Английский — B1 — Средний
+Образование: True"
+31,cv,frontend,"Резюме: Frontend-разработчик
+Опыт работы 3 года 10 месяцев
+Описание: unknown
+Ключевые навыки: Git, Vuetify, Scss, Nuxt, VueJS, HTML, GraphQL, tailwind, postcss, Sass, Vuex, CSS3, REST API, Axios, Адаптивная верстка, i18n, strapi
+Тип занятости: unknown
+График работы: unknown
+Знание языков: Русский — Родной, Английский — B2 — Средне-продвинутый, Сербский — A1 — Начальный
+Образование: True"
+32,cv,frontend,"Резюме: Frontend-разработчик
+Опыт работы 4 года 4 месяца
+Описание: unknown
+Ключевые навыки: Code review, Jest, TypeScript, ReactJS, Axios, Redux-Saga, Gitlab, CSS, Sass, ES6, WebSocket, Redux-thunk, Babel, Webpack, Исполнительность, HTML5, CSS3, React, Redux, JavaScript, React-Redux
+Тип занятости:  полная занятость
+График работы:  полный день
+Знание языков: Русский — Родной, Английский — A2 — Элементарный
+Образование: True"
+33,cv,frontend,"Резюме: Frontend - разработчик
+Опыт работы 4 года
+Описание: unknown
+Ключевые навыки: JavaScript
+Тип занятости: unknown
+График работы: unknown
+Знание языков: Русский — Родной, Английский — B2 — Средне-продвинутый
+Образование: True"
+34,cv,frontend,"Резюме: WEB-программист fullstack
+Опыт работы 22 года 10 месяцев
+Описание: unknown
+Ключевые навыки: ООП
+Тип занятости: unknown
+График работы: unknown
+Знание языков: Русский — Родной, Английский — B1 — Средний
+Образование: False"
+35,cv,frontend,"Резюме: Frontend разработчик
+Опыт работы 17 лет 9 месяцев
+Описание: unknown
+Ключевые навыки: JavaScript
+Тип занятости:  полная занятость
+График работы:  полный день, гибкий график, удаленная работа
+Знание языков: Русский — Родной, Английский — B1 — Средний
+Образование: True"
+36,cv,frontend,"Резюме: Frontend-разработчик
+Опыт работы 3 года 5 месяцев
+Описание: unknown
+Ключевые навыки: React, Node.js, Next.js, MongoDB, Redis, RabbitMQ, Google Analytics, Docker, Git, TypeScript, Kubernetes, K8s KEDA, Terraform, JavaScript, SCSS, Livekit media server, Nest.js, Express.js, Amazon Web Services, Google Cloud Platform, Apache Kafka, NestJS, REST, Logbroker, Puppeteer, Redux
+Тип занятости:  полная занятость, проектная работа
+График работы:  полный день, гибкий график, удаленная работа
+Знание языков: Русский — Родной, Английский — B1 — Средний
+Образование: True"
+37,cv,frontend,"Резюме: Frontend-разработчик
+Опыт работы 6 лет 3 месяца
+Описание: unknown
+Ключевые навыки: JavaScript, HTML5, CSS3, Google API, Google Maps Api, Bootstrap, Linux, ООП, Vue JS, Git, Sass, Firebase, Node.js, MongoDB, REST, Nuxt, ExpressJS, Handlebars
+Тип занятости: unknown
+График работы: unknown
+Знание языков: Русский — Родной, Английский — B2 — Средне-продвинутый, Сербский — C1 — Продвинутый
+Образование: True"
+38,cv,frontend,"Резюме: Frontend Developer
+Опыт работы 2 года 2 месяца
+Описание: unknown
+Ключевые навыки: HTML
+Тип занятости:  полная занятость, проектная работа
+График работы:  полный день, гибкий график, удаленная работа
+Знание языков: Русский — Родной, Английский — B1 — Средний
+Образование: True"
+39,cv,frontend,"Резюме: Frontend-разработчик
+Опыт работы 10 лет 1 месяц
+Описание: unknown
+Ключевые навыки: Прототипирование, CSS3, UX, UI, Adobe Photoshop, MySQL, HTML5, Проектирование пользовательских интерфейсов, Управление интернет-проектами, Adobe Illustrator, Bootstrap, Веб-дизайн, Web-дизайн, Управление проектами, Usability, CMS Wordpress, Разработка технических заданий, Постановка задач разработчикам, руководство командой разработчиков, Тестирование пользовательского интерфейса, Atlassian Jira, Atlassian Confluence, JavaScript, Figma, Sketch, CX, AngularJS
+Тип занятости:  полная занятость
+График работы:  полный день
+Знание языков: Русский — Родной, Английский — B1 — Средний, Румынский — A2 — Элементарный, Французский — B1 — Средний
+Образование: True"

@@ -1,7 +1,6 @@
 from typing import List
 
 from langchain_core.output_parsers import StrOutputParser, BaseOutputParser
-from langchain_core.messages import AIMessage, BaseMessage
 
 from .prompt import CLASSIFIER_NODE_PROMPT
 from agent.nodes._base import _BaseNode
@@ -27,16 +26,14 @@ class ClassifierNode(_BaseNode):
 
     def invoke(self, state: State):
         history = state.history
-
-        vacancy = history[-1].content
-        answer = self.chain.invoke({"vacancy": vacancy})
+        content = history[-1].content
+        
+        catalog_name = 'vac' if "вакансия" in content else 'cv'
+        category_name = self.chain.invoke({"category": content})
 
         if self.show_logs:
-            print(self.name)
-            print(state.catalog_name)          
-            print(f"Model answer: {answer}")
-            print("----------------")
+            print(self.name)            
+            print(f"Model answer: \ncatalog: {catalog_name}\ncatalog: {category_name}")
+            print("----------------")        
 
-        catalog_name = answer
-
-        return {"history": history, "catalog_name": catalog_name}
+        return {"history": history, "catalog_name": catalog_name, 'category_name': category_name}

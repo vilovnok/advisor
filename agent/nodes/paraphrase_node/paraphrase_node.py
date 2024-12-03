@@ -45,4 +45,4 @@ class ParaphraseNode(_BaseNode):
 
         history.append(FunctionMessage(name="ParaphraseNode", content=answer))
 
-        return {"history": history, "catalog_name": state.catalog_name}
+        return {"history": history, "catalog_name": state.catalog_name, 'category_name': state.catalog_name}

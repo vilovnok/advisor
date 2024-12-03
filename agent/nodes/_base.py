@@ -24,6 +24,7 @@ class _BaseNode(ABC):
         self.chain = PromptTemplate.from_template(prompt) | llm.llm | output_parser
 
     def get_summary(self, history: List[BaseMessage]):
+        print(f'History::: {history}')
         for replic in history[::-1]:
             if isinstance(replic, FunctionMessage) and replic.name == "SummarizationNode":
                 return replic.content

@@ -30,11 +30,9 @@ class Parser:
 
     def _setup_model(self, api_key: str = None, model: str = None):
         try:
-            self.model = ChatMistralAI(model=model, temperature=0.2, max_retries=2, api_key=api_key)
+            self.model = ChatMistralAI(model=model, temperature=0, max_retries=2, api_key=api_key)
         except Exception as error:    
             raise ValueError(f"Что-то не так с моделью:\n{error}")
-
-        self.model = ChatMistralAI(model=model, temperature=0.2, max_retries=2, api_key=api_key)
 
 
     def _get_count_page_cv(self):
@@ -78,27 +76,128 @@ class Parser:
             raise ValueError(f"Что-то не так на этапе парсинга ссылок CV:\n{error}")
 
 
-    def cleaner_cv(self, description):
-        """ Очищает не важную информацию о кандидате """
+    def process_description(self, description, task_type):
+        """
+        Обрабатывает описание кандидата в зависимости от указанной задачи.
 
+        :param description: текст описания для анализа.
+        :param task_type: тип задачи (например, 'extract' или 'summary-desc').
+        :return: результат обработки.
+        """
         if not description:
             raise ValueError('Переменная description не была передана. Пожалуйста, добавьте описание.')
-        try:
-            prompt = ChatPromptTemplate.from_messages(
-            [("system", """
-              Ты агент который конкретизирует описание работы кандидата. Избався от всей не нужной информации. 
-              Например, даты, название компаний и всего того, что не отражает опыт работы.
-              Убери всю не важную информацию и сохрани информацию, которая будет описывать опыт кандидата.
-              Отвечай в одну строчку на РУССКОМ ЯЗЫКЕ.
-              Описание: {context}      
-              """)])
 
+        prompts = {
+            "extract-desc": """
+            Проанализируйте текст и выделите только информацию о том, чем занимался пользователь (его обязанности и задачи). 
+            Пример ответа:  
+            Чем занимался: <опишите задачи и обязанности пользователя>  
+            Текст для анализа:  
+            {context}
+            """,
+            "summary-desc": """
+            Проанализируйте текст и создайте краткую суммаризацию, которая содержит только основную информацию о работе пользователя. 
+            Суммаризация должна быть краткой, понятной и содержать ключевые задачи и обязанности.  
+            Пример ответа:  
+            Пользователь занимался настройкой CI/CD процессов, администрированием серверов, управлением контейнерами и мониторингом систем.
+            Текст для анализа:  
+            {context}
+            """,
+            "classifier-employment": """
+            Выделите и перечислите все упомянутые в тексте типы занятости в строгом порядке: полная занятость, частичная занятость, проектная работа, стажировка. Если тип занятости не указан в тексте, пропустите его. Если в тексте не упоминается ни один из известных типов занятости, укажите - .
+            
+            Возможные типы занятости:  
+            - полная занятость  
+            - частичная занятость  
+            - проектная работа  
+            - стажировка  
+            
+            Пример 1:  
+            Текст: полная занятость, частичная занятость, проектная работа, стажировка
+            Ответ: полная занятость, частичная занятость, проектная работа, стажировка
+            
+            Пример 2:  
+            Текст: стажировка, проектная работа, частичная занятость
+            Ответ: частичная занятость, проектная работа, стажировка            
+            
+            Текст для анализа:  
+            {context}
+            """,
+            "classifier-schedule": """
+            Выделите и перечислите все упомянутые в тексте графики работы в строгом порядке: полный день, сменный график, гибкий график, удаленная работа. Если график работы не указан в тексте, пропустите его. Если в тексте не упоминается ни один из известных графиков работы, укажите - .
+            
+            Возможные графики работы:  
+            - полный день  
+            - сменный график  
+            - гибкий график  
+            - удаленная работа  
+            
+            Пример 1:  
+            Текст: полный день, гибкий график, удаленная работа
+            Ответ: полный день, гибкий график, удаленная работа
+            
+            Пример 2:  
+            Текст: удаленная работа, гибкий график
+            Ответ: гибкий график, удаленная работа
+            
+            Текст для анализа:  
+            {context}
+            """,
+            "classifier-edu": """
+            Проанализируйте текст и определите тип образования пользователя. Укажите, является ли образование высшим или неоконченным, а также техническое оно или нет. Если невозможно определить информацию об образовании, укажите -.
+
+            Пример 1:  
+            Текст: "Окончил Московский государственный технический университет имени Баумана по специальности инженер."  
+            Ответ: Высшее образование, техническое  
+
+            Пример 2:  
+            Текст: "Учился в Санкт-Петербургском университете, но не закончил."  
+            Ответ: Неоконченное высшее образование, нетехническое  
+
+            Пример 3:  
+            Текст: "Получил степень бакалавра в области компьютерных наук."  
+            Ответ: Высшее образование, техническое  
+
+            Пример 4:  
+            Текст: "Образование в тексте не указано."  
+            Ответ: -  
+
+            Текст для анализа:  
+            {context}
+            """,            
+        }
+
+        if task_type not in prompts:
+            raise ValueError(f"Неподдерживаемый тип задачи: {task_type}")
+
+        try:
+            prompt_text = prompts[task_type]
+            prompt = ChatPromptTemplate.from_messages([("system", prompt_text)])
             chain = prompt | self.model | StrOutputParser()
             result = chain.invoke({"context": description})
-
-            return result.replace("\n", ". ")
+            return result
         except Exception as error:
-            raise ValueError(f"Что-то не так на этапе очистки описания CV:\n{error}")
+            raise ValueError(f"Что-то не так на этапе обработки описания CV:\n{error}")
+
+    def cleaner_cv(self, description):
+        """ Очищает неважную информацию о кандидате. """
+        return self.process_description(description, task_type="extract-desc")
+
+    def summary_cv(self, description):
+        """ Создает краткую суммаризацию описания кандидата. """
+        return self.process_description(description, task_type="summary-desc")
+    def classifier_employment_cv(self, description):
+    
+        """ Создает краткую суммаризацию описания кандидата. """
+        return self.process_description(description, task_type="classifier-employment")
+    
+    def classifier_schedule_cv(self, description):
+        """ Создает краткую суммаризацию описания кандидата. """
+        return self.process_description(description, task_type="classifier-schedule")
+    
+    def classifier_edu_cv(self, description):
+        """ Создает краткую суммаризацию описания кандидата. """
+        return self.process_description(description, task_type="classifier-edu")
 
 
     def get_user_cv(self, link=None):
@@ -114,58 +213,63 @@ class Parser:
         try:
             name = soup.find(attrs={"class": "resume-block__title-text"}).text
         except:
-            name = ""
+            raise ValueError('Invalid value')
         try:
-            experience = soup.find(attrs={"class": "resume-block__title-text_sub"}).text.replace(" ", " ").replace(" ", " ")
+            experience = soup.find(attrs={"class": "resume-block__title-text_sub"}).text.replace(" ", " ").replace(" ", " ").split('работы')[-1]
+            if not any(char.isdigit() for char in experience):
+                ValueError('Invalid value')
         except:
-            experience = ""
-        try:
-            salary = soup.find(attrs={"class": "resume-block__title-text_salary"}).text.replace("\u2009", " ").replace(
-                "\xa0", " ")
-        except:
-            salary = ""
+            raise ValueError('Invalid value')            
         try:
             skills = ", ".join([skill.get_text(separator=' ', strip=True) for skill in soup.find(attrs={"class": "bloko-tag-list"}).find_all(attrs={"class": "bloko-tag__section_text"})])
         except:
-            skills = [] 
+            raise ValueError('Invalid value')
         try:
             professional_roles = soup.find(attrs={"class": "resume-block__specialization"}).text
         except:
-            professional_roles = ""    
+            professional_roles = []   
         try:
             schedule_employment = [shell.get_text(separator=' ', strip=True) for shell in soup.find(attrs={"class": "resume-block-container"}).find_all("p")]
+            employment = schedule_employment[0].split(':')[-1]
+            schedule = schedule_employment[1].split(':')[-1]
+
+            employment = self.classifier_employment_cv(employment)            
+            schedule = self.classifier_schedule_cv(schedule)
         except:
-            schedule_employment = ""        
+            employment, schedule = [], []       
         try:
             language = ", ".join([lang.get_text(separator=' ', strip=True) for lang in soup.find_all(attrs={"data-qa": "resume-block-language-item"})])
         except:
             language = []
         try:
             education = ", ".join([edu.get_text(separator=' ', strip=True) for edu in soup.find_all(attrs={"data-qa": "resume-block-education"})])
+            education = self.classifier_edu_cv(education)
         except:
             education = []
+
         try:
-            location = ", ".join([loc.get_text(separator=' ', strip=True).replace("\xa0", " ") for loc in soup.find_all(attrs={"data-sentry-source-file": "ResumePersonalLocation.jsx"})])
+            location = ", ".join([loc.get_text(separator=' ', strip=True).replace("\xa0", " ") for loc in soup.find_all(attrs={"data-sentry-source-file": "ResumePersonalLocation.jsx"})])            
         except:
             location = []
         try:
-            description = " ".join([desc.get_text(separator=' ', strip=True).replace("\xa0", " ").replace("Показать еще"," ").replace("\n"," ") for desc in soup.find_all(attrs={"data-sentry-component": "ResumeExperience"})])
+            description = soup.find_all(attrs={"data-qa": "resume-block-experience"})
             description = self.cleaner_cv(description)            
+            description = self.summary_cv(description)            
         except:
-            description = []
+            raise ValueError('Invalid value')
+
 
         resume = {
-            "name": name if name else None,                
-            "salary": salary if salary else None,                
-            "experience": experience if experience else None,        
-            "description": description if description else None,
-            "skills": skills if skills else None,
-            'employment': schedule_employment[0].split(':')[-1] if schedule_employment else None,
-            "schedule":  schedule_employment[1].split(':')[-1] if schedule_employment else None,
-            "professional_roles": professional_roles if professional_roles else None,        
-            "language": language if language else None,        
-            "location":location if location else None,        
-            "education": education if education else None,        
+            "name": name if name else "-",                                
+            "experience": experience if experience else "-",        
+            "description": description,
+            "skills": skills if skills else "-",
+            'employment': employment if schedule_employment else "-",
+            "schedule":  schedule if schedule_employment else "-",
+            "professional_roles": professional_roles if professional_roles else "-",        
+            "language": language if language else "-",        
+            "location": location if location else "-",        
+            "education": education if education else "-",        
         }
         return resume        
         
@@ -183,23 +287,23 @@ class Parser:
             if len(links) < limit_objects: limit_objects = None
 
             for _, link in tqdm(links[:limit_objects], desc="CV: Создаем файл"):
-                resume = self.get_user_cv(link)
-                resumes.append(resume)             
-
+                try:
+                    resume = self.get_user_cv(link)
+                except Exception as error:                    
+                    continue
+                resumes.append(resume)    
             with open(f"data/CV_{self.topic}.txt", "w", encoding="utf-8") as f:
                 for resume in tqdm(resumes):
 
-                    f.write(f"Ищет работу на должность: {resume['name']}\n")
-                    f.write(f"Желаемая зарплата: {resume['salary']}\n")
+                    f.write(f"Резюме: {resume['name']}\n")
                     f.write(f"Опыт работы: {resume['experience']}\n")
                     f.write(f"Описание: {resume['description']}\n")                
                     f.write(f"Ключевые навыки: {resume['skills']}\n")
                     f.write(f"Тип занятости: {resume['employment']}\n")
                     f.write(f"График работы: {resume['schedule']}\n")
-                    f.write(f"Знает языки: {resume['language']}\n")
+                    f.write(f"Знание языков: {resume['language']}\n")
                     f.write(f"Образование: {resume['education']}\n")
-                    f.write(f"Местоположение: {resume['location']}\n")
-                    f.write(f"Профессиональные роли: {resume['professional_roles']}\n")
+                    # f.write(f"Местоположение: {resume['location']}\n")
                     f.write("\n" + "-" * 50 + "\n\n")
 
             logging.basicConfig(level=logging.INFO, filemode="w",format="%(asctime)s %(levelname)s: %(message)s")
@@ -258,7 +362,7 @@ class Parser:
         """ Подготовить строку для скилов """
 
         if not skills:
-            return None
+            return 'unknown'
         sent = ''
         for skil in skills:
             sent+= f'{skil["name"]}, '
@@ -275,14 +379,17 @@ class Parser:
             prompt = ChatPromptTemplate.from_messages(
             [("system", """
               Ты агент который помогает выделить самое главное из описания вакансий, обращая внимание на:
-              1) Какие технологии использует компания и чем она занимается?
-              2) Какие требования (ожидания) от кандидата?
-              3) Чем будет заниматься кандидат в компании?
-              4) Что предлагает компания?
+              
+              Описание: Чем компания занимается, какие технологии использует, что она предлагает и какие требования (ожидания) от кандидата?
+              Знание языка: какие языки требуются?
+              Образование: требуется или не требуеться ?        
+              
               ВАЖНО: Если в вакансии какой либо информации не указано, то просто оставляй None.
               Избався от всей не нужной информации. Например, даты, название компаний и тд.
-              Отвечай в одну строчку на РУССКОМ ЯЗЫКЕ.
+              В область "знание языка" должно входить языки естественной речи (просто укажи если есть в описание).
+                            
               Описание: {context}      
+              Твой ответ должен быть в одну строку (содержания описание, знание языка и образование должны быть разделены $):
               """)])
 
             chain = prompt | self.model | StrOutputParser()
@@ -313,40 +420,40 @@ class Parser:
             response = requests.get(link)
             info_vacancy = response.json()
         except:
-            return None
-
+            raise ValueError('Invalid value')
         try:
             name = info_vacancy['name']
         except:
-            name = None 
+            raise ValueError('Invalid value')
         try:
             address = info_vacancy['address']['city']
         except:
-            address = None
+            address = '-'            
         try:
             experience = info_vacancy['experience']['name']
         except:
-            experience = None
+            raise ValueError('Invalid value')
         try:
             schedule = info_vacancy['schedule']['name']
         except:
-            schedule = None
+            schedule = '-'
         try:
             employment = info_vacancy['employment']['name']
         except:
-            employment = None
+            employment = '-'            
         try:
             description = info_vacancy['description']
         except:
-            description = None
+            raise ValueError('Invalid value')
         try:
             skills = info_vacancy['key_skills']
         except:
-            skills = None
-        try:            
-            professional_roles = info_vacancy['professional_roles'][0]['name']
-        except:
-            professional_roles = None
+            raise ValueError('Invalid value')
+        # try:            
+        #     professional_roles = info_vacancy['professional_roles'][0]['name']
+        # except:
+        #     professional_roles = None
+        #     raise ValueError('Invalid value')
 
         full_info = {'name': name,
                      'experience': experience,
@@ -355,7 +462,8 @@ class Parser:
                      'skills': skills,
                      'employment': employment,
                      'schedule': schedule,                     
-                     'professional_roles': professional_roles}
+                    #  'professional_roles': professional_roles
+                     }
 
         return full_info 
     
@@ -370,25 +478,28 @@ class Parser:
 
         with open(filename, 'w') as f:
             for vacancy in tqdm(vacancies[:limit_objects], desc="Vacancy: Создаем файл"):  
+                try:
+                    vac_info = self.get_info_vacancy(vacancy[3])
+                    
+                    skills = vac_info["skills"]
+                    title = self.prep_skills(skills=skills)
+                    description = self.prep_description(vac_info["description"])
+                    description, language, education = description.split("$")                                        
+                    education = True if 'None' not in education else '-'
+                    language = language if 'None' not in language else '-'
 
-                vac_info = self.get_info_vacancy(vacancy[3])
-
-                if vac_info is None:
+                    f.write(f'Вакансия: {vac_info["name"]}\n')
+                    f.write(f'Опыт работы: {vac_info["experience"]}\n')
+                    f.write(f'Описание: {description}\n')
+                    f.write(f'Ключевые навыки: {title}\n')
+                    f.write(f'Тип занятости: {vac_info["employment"]}\n')
+                    f.write(f'График работы: {vac_info["schedule"]}\n')
+                    f.write(f"Знание языков: {language}\n")
+                    f.write(f"Образование: {education}\n")
+                    # f.write(f"Местоположение: {vac_info['address']}\n")
+                    f.write('\n' + '-' * 50 + '\n\n') 
+                except Exception as error:
                     continue
-                
-                skills = vac_info["skills"]
-                title = self.prep_skills(skills=skills)
-                description = self.prep_description(vac_info["description"])
-
-                f.write(f'Имя вакансии: {vac_info["name"]}\n')
-                f.write(f'Опыт работы: {vac_info["experience"]}\n')
-                f.write(f'Описание: {description}\n')
-                f.write(f'Ключевые навыки: {title}\n')
-                f.write(f'Тип занятости: {vac_info["employment"]}\n')
-                f.write(f'График работы: {vac_info["schedule"]}\n')
-                f.write(f"Местоположение: {vac_info['address']}\n")
-                f.write(f'Профессиональные роли: {vac_info["professional_roles"]}\n')
-                f.write('\n' + '-' * 50 + '\n\n') 
         
         logging.basicConfig(level=logging.INFO, filemode="w",format="%(asctime)s %(levelname)s: %(message)s")
         logging.info(f"Файл создан! Файл содержит вакансии в количестве {len(vacancies[:limit_objects])}.")
