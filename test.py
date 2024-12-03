@@ -1,9 +1,10 @@
 from vllm import LLM, SamplingParams
+from huggingface_hub import login
 
-# 1. Инициализация модели
-# Укажите путь к модели LLaMA 3.1. Это может быть локальная папка или модель из Hugging Face Hub.
-MODEL_PATH = "huggingface/llama-3b"  # Замените на путь к модели LLaMA 3.1
+MODEL_PATH = "mistralai/Mistral-7B-Instruct-v0.3"
 
+token='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'
+login(token=token)
 # Инициализируйте LLM
 llm = LLM(model=MODEL_PATH)
 
