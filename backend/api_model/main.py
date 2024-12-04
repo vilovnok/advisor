@@ -1,7 +1,7 @@
+import uvicorn
 from vllm import LLM, SamplingParams
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-
 from .schema import  (ChatRequest, ChatResponse, ChatResponseChoice)
 
 
@@ -56,3 +56,6 @@ async def list_models():
         "data": [{"id": model, "object": "model"}],
         "object": "list",
     }
+
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="0.0.0.0", port=7896)
