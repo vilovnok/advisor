@@ -6,7 +6,7 @@ from .schema import  (ChatRequest, ChatResponse, ChatResponseChoice)
 
 from huggingface_hub import login
 
-model = "meta-llama/Llama-3.2-1B"
+model = "r1char9/llama-7b"
 token='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'
 
 login(token=token)
