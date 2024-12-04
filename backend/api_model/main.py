@@ -4,8 +4,12 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from .schema import  (ChatRequest, ChatResponse, ChatResponseChoice)
 
+from huggingface_hub import login
 
 model = "meta-llama/Llama-3.2-3B-Instruct"
+token='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'
+
+login(token=token)
 
 app = FastAPI(title='vLLM')
 llm = LLM(model=model)
