@@ -2,7 +2,7 @@ import uvicorn
 from vllm import LLM, SamplingParams
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from api_model.schema import (ChatRequest, ChatResponse, ChatResponseChoice)
+from .schema import (ChatRequest, ChatResponse, ChatResponseChoice)
 
 from huggingface_hub import login
 
