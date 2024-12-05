@@ -5,7 +5,7 @@ def setup_openai():
     openai.api_base = "http://localhost:7986"
 
 setup_openai()
-
+"lmsys/vicuna-7b-v1.3"
 system_prompt = "Ты бот который отвечает очень грубо"
 user_prompt = "Как дела?"
 
@@ -15,7 +15,7 @@ messages = [
     ]
 
 result = openai.ChatCompletion.create(
-            model="meta-llama/Llama-2-7b-hf",
+            model="lmsys/vicuna-7b-v1.3",
             messages=messages,
             max_tokens=4096,
             temperature=0.9,
