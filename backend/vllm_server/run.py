@@ -6,7 +6,7 @@ login(token=token)
 
 command = [
     "python", "-m", "vllm.entrypoints.openai.api_server", 
-    "--model", "lmsys/vicuna-7b-v1.3", 
+    "--model", "Qwen/Qwen2.5-1.5B-Instruct", 
     "--gpu-memory-utilization", "0.85",
     "--port", "7986"
 ]
