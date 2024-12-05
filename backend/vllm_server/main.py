@@ -6,7 +6,22 @@ def setup_openai():
 
 setup_openai()
 
+system_prompt = "Ты бот который отвечает очень грубо"
+user_prompt = "Как дела?"
 
+messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": user_prompt}
+    ]
+
+result = openai.ChatCompletion.create(
+            model="meta-llama/Llama-2-7b-hf",
+            messages=messages,
+            max_tokens=4096,
+            temperature=0.9,
+            top_p=0.6
+        )
+print(result["choices"][0].get("message").get("content"))
 
 
 
