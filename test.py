@@ -1,83 +1,62 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from typing import List, Dict, Optional
-from vllm import LLM, SamplingParams
-from huggingface_hub import login
+import openai
+import paramiko
+import subprocess
+import time
 
+# Создаем SSH-туннель
+def create_ssh_tunnel():
+    ssh_host = "77.234.216.100"
+    ssh_user = "rgurtsiev"
+    ssh_password = "ohshieN1aiG9"
+    remote_host = "10.196.183.10"
+    remote_port = 7986
+    local_port = 8881
 
+    # Создаем SSH клиент
+    ssh_client = paramiko.SSHClient()
+    ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    
+    # Подключаемся к удаленному серверу
+    ssh_client.connect(ssh_host, username=ssh_user, password=ssh_password)
+    
+    # Создаем SSH-туннель
+    ssh_client.get_transport().request_port_forward('localhost', local_port, remote_host, remote_port)
+    
+    print(f"SSH Tunnel established on localhost:{local_port} to {remote_host}:{remote_port}")
 
-MODEL_PATH = "mistralai/Mistral-7B-Instruct-v0.3"
-token='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'
+    return ssh_client
 
+# Настроим OpenAI API
+def setup_openai():
+    openai.api_base = "http://localhost:7986"
 
-login(token=token)
+# Запустим код
+def main():
+    # Создаем SSH туннель
+    ssh_client = create_ssh_tunnel()
 
+    # Настроим OpenAI API
+    setup_openai()
 
-
-
-app = FastAPI()
-
-
-llm = LLM(model="your_model_path")
-
-
-class Message(BaseModel):
-    role: str
-    content: str
-
-class ChatRequest(BaseModel):
-    model: str
-    messages: List[Message]
-    max_tokens: int = 256
-    temperature: float = 0.7
-    top_p: float = 0.9
-
-class ChatResponseChoice(BaseModel):
-    message: Dict[str, str]
-
-class ChatResponse(BaseModel):
-    choices: List[ChatResponseChoice]
-
-# Эндпоинт для ChatCompletion
-@app.post("/v1/chat/completions", response_model=ChatResponse)
-async def chat_completions(request: ChatRequest):
-    if request.model != "your_model_name":  # Проверяем имя модели
-        raise HTTPException(status_code=400, detail="Model not found")
-
-    # Объединение сообщений в один prompt
-    prompt = ""
-    for message in request.messages:
-        role = message.role.capitalize()
-        prompt += f"{role}: {message.content}\n"
-    prompt += "Assistant:"
-
-    # Настройки генерации текста
-    sampling_params = SamplingParams(
-        max_tokens=request.max_tokens,
-        temperature=request.temperature,
-        top_p=request.top_p,
+    # Пример запроса к OpenAI API
+    system_prompt = "Your system prompt"
+    
+    # Отправляем запрос
+    response = openai.Completion.create(
+        model="meta-llama/Llama-2-7b-hf",
+        prompt=system_prompt,
+        max_tokens=50
     )
 
-    # Генерация текста с моделью
-    outputs = llm.generate(prompt, sampling_params)
+    print("Response:", response)
 
-    # Возвращаем первый результат
-    content = outputs[0].outputs[0].text.strip()
-    return ChatResponse(
-        choices=[
-            ChatResponseChoice(
-                message={
-                    "role": "assistant",
-                    "content": content,
-                }
-            )
-        ]
-    )
+    # Ожидаем, пока SSH-туннель не будет закрыт вручную
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        print("Closing SSH tunnel.")
+        ssh_client.close()
 
-# Эндпоинт для получения списка доступных моделей
-@app.get("/v1/models")
-async def list_models():
-    return {
-        "data": [{"id": "your_model_name", "object": "model"}],
-        "object": "list",
-    }
+if name == "__main__":
+    main()

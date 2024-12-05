@@ -29,6 +29,9 @@ nltk = "^3.9.1"
 ranx = "^0.3.20"
 fastapi = "^0.115.6"
 vllm = "^0.6.4.post1"
+openai = "^1.56.2"
+paramiko = "^3.5.0"
+sshtunnel = "^0.4.0"
 
 
 [tool.poetry.group.dev.dependencies]
