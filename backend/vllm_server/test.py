@@ -63,4 +63,9 @@ def main():
         # tunnel.stop()
 
 if __name__ == "__main__":
-    main()
+    # main()
+    import torch 
+    import gc
+
+    gc.collect()
+    torch.cuda.empty_cache()
