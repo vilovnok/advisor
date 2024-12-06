@@ -6,8 +6,7 @@ login(token=token)
 
 command = [
     "python", "-m", "vllm.entrypoints.openai.api_server", 
-    "--model", "msu-rcc-lair/RuadaptQwen2.5-32B-instruct-GGUF",
-    "--revision", "Q4_K_M",
+    "--model", "meta-llama/Llama-3.2-3B-Instruct",
     "--gpu-memory-utilization", "0.85",
     "--port", "7986"
 ]
