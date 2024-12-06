@@ -6,7 +6,7 @@ login(token=token)
 
 command = [
     "python", "-m", "vllm.entrypoints.openai.api_server", 
-    "--model", "mistralai/Mistral-Nemo-Instruct-2407", 
+    "--model", "msu-rcc-lair/RuadaptQwen2.5-32B-instruct-GGUF", 
     "--gpu-memory-utilization", "0.85",
     "--port", "7986"
 ]

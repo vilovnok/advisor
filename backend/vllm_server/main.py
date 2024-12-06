@@ -94,7 +94,7 @@ def compile():
 
     async def generate_answers(prompt):
         completion = await async_client.chat.completions.create(
-            model="mistralai/Mistral-Nemo-Instruct-2407",
+            model="msu-rcc-lair/RuadaptQwen2.5-32B-instruct-GGUF",
             messages=[{"role": "user", "content": prompt}],
             # max_length=1028
         )
