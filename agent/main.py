@@ -1,5 +1,5 @@
 from agent.graphs import ConsultantGraph
-from agent.utils import LLMModelType
+from agent.utils import LlmModelType
 
 
 with open('agent/example.txt', 'r', encoding='utf-8') as file:
@@ -9,7 +9,7 @@ if __name__ == "__main__":
 
     name = 'Mistral'
     model_name = "mistral-large-latest"
-    model_type = LLMModelType.MISTRAL
+    model_type = LlmModelType.MISTRAL
 
     graph = ConsultantGraph(
                             # name=name,

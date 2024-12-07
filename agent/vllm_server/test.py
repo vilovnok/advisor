@@ -5,6 +5,41 @@ import openai
 api_key = "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"
 api_base = "http://localhost:7986/v1"
 
+
+import openai
+import pandas as pd
+from tqdm import tqdm
+
+openai.api_key = api_key
+
+endpoint = 'http://localhost:7986/v1'
+model = 'MTSAIR/Cotype-Nano'
+openai.api_base = endpoint
+
+# Possible system prompt:
+# {"role": "system", "content": "Ты — ИИ-помощник. Тебе дано задание: необходимо сгенерировать подробный и развернутый ответ."},
+
+
+response = openai.ChatCompletion.create(
+    model=model,
+    temperature=0.4, # 0.0 is also allowed
+    frequency_penalty=0.0,
+    max_tokens=2048,
+    top_p=0.8, # 0.1 is also allowed
+    messages=[
+        {"role": "system", "content": "Ты — ИИ-помощник. Тебе дано задание: необходимо сгенерировать подробный и развернутый ответ."},
+        {"role": "user", "content": "Придумай короткую историю про брата."}
+        ]
+    )
+
+answer = response["choices"][0]["message"]["content"]
+print(answer)
+
+
+
+
+
+
 # openai.api_base = api_base
 # openai.api_key = api_key
 
@@ -119,7 +154,7 @@ def compile():
         print
         asyncio.run(main(data[idx:idx+batch_size]))
 
-compile()
+# compile()
 
 def pop():
 

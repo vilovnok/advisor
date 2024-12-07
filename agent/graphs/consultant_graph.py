@@ -14,13 +14,13 @@ from agent.nodes import (
 from agent.database import Retriever
 from agent.llms import LlamaLLM
 from agent.graphs import State
-from agent.utils import LLMModelType
+from agent.utils import LlmModelType
 
 class ConsultantGraph:
     def __init__(self, 
                  name: str="llama_3.1 from ollama",
                  model_name: str="llama3.1",
-                 model_type: LLMModelType=LLMModelType.OLLAMA,
+                 model_type: LlmModelType=LlmModelType.OLLAMA,
                  show_logs: bool = False, 
                  save_online_metric: bool = False) -> None:
         
