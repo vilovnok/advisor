@@ -5,17 +5,15 @@ from agent.utils import LlmModelType
 class OpenAIClient:
     def __init__(self, 
                 model_type: LlmModelType,
-                base_url: str="http://localhost:7986"):
-        
-
-        self.base_url = base_url
+                api_key: str,
+                api_base: str="http://localhost:7986"):
         
         self.setup_model(model_type)        
-        self.setup_openai() 
+        self.setup_openai(api_key=api_key, api_base=api_base) 
 
-    def setup_openai(self):
-        openai.api_key = "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"
-        openai.api_base = self.base_url
+    def setup_openai(self, api_key:str, api_base:str):
+        openai.api_key = api_key
+        openai.api_base = api_base
 
     def setup_model(self, model_type:str):
         if model_type == LlmModelType.COTYIPE:

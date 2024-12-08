@@ -4,9 +4,13 @@ import requests
 import fake_useragent
 from tqdm import tqdm
 from bs4 import BeautifulSoup
+from agent.utils import LlmModelType
 from langchain_mistralai import ChatMistralAI
-from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
+from agent.vllm_server.utils import openai_key, api_base
+from agent.vllm_server.openai_client import OpenAIClient
+from langchain_core.output_parsers import StrOutputParser
+
 
 
 ####################################################################
@@ -30,6 +34,7 @@ class Parser:
 
     def _setup_model(self, api_key: str = None, model: str = None):
         try:
+            self.client = OpenAIClient(model_type=LlmModelType.COTYIPE, api_base=api_base, api_key=openai_key)
             self.model = ChatMistralAI(model=model, temperature=0, max_retries=2, api_key=api_key)
         except Exception as error:    
             raise ValueError(f"Что-то не так с моделью:\n{error}")
@@ -76,28 +81,27 @@ class Parser:
             raise ValueError(f"Что-то не так на этапе парсинга ссылок CV:\n{error}")
 
 
-    def process_description(self, description, task_type):
+    def extractInfo(self, content, task_type):
         """
         Обрабатывает описание кандидата в зависимости от указанной задачи.
 
-        :param description: текст описания для анализа.
+        :param content: текст описания для анализа.
         :param task_type: тип задачи (например, 'extract' или 'summary-desc').
         :return: результат обработки.
         """
-        if not description:
-            raise ValueError('Переменная description не была передана. Пожалуйста, добавьте описание.')
+        if not content:
+            raise ValueError('Переменная content не была передана. Пожалуйста, добавьте описание.')
 
         prompts = {
-            "extract-desc": """
-            Проанализируйте текст и выделите только информацию о том, чем занимался пользователь (его обязанности и задачи). 
-            Пример ответа:  
-            Чем занимался: <опишите задачи и обязанности пользователя>  
+            "extract-content": """
+            Проанализируйте текст и выделите только информацию о том, чем занимался пользователь (его обязанности и задачи).
+            Ответ должен быть в строчку.
             Текст для анализа:  
             {context}
             """,
-            "summary-desc": """
+            "summary-content": """
             Проанализируйте текст и создайте краткую суммаризацию, которая содержит только основную информацию о работе пользователя. 
-            Суммаризация должна быть краткой, понятной и содержать ключевые задачи и обязанности.  
+            Суммаризация должна быть краткой, понятной и содержать ключевые задачи и обязанности. Ответ должен быть в строчку. 
             Пример ответа:  
             Пользователь занимался настройкой CI/CD процессов, администрированием серверов, управлением контейнерами и мониторингом систем.
             Текст для анализа:  
@@ -159,7 +163,7 @@ class Parser:
             Ответ: Высшее образование, техническое  
 
             Пример 4:  
-            Текст: "Образование в тексте не указано."  
+            Текст: "Получил сертификат."  
             Ответ: -  
 
             Текст для анализа:  
@@ -171,33 +175,34 @@ class Parser:
             raise ValueError(f"Неподдерживаемый тип задачи: {task_type}")
 
         try:
-            prompt_text = prompts[task_type]
-            prompt = ChatPromptTemplate.from_messages([("system", prompt_text)])
-            chain = prompt | self.model | StrOutputParser()
-            result = chain.invoke({"context": description})
+            system_prompt = prompts[task_type]
+            # prompt = ChatPromptTemplate.from_messages([("system", prompt_text)])
+            # chain = prompt | self.model | StrOutputParser()
+            # result = chain.invoke({"context": description})
+            result = self.client.invoke(prompt=system_prompt, content=content)
             return result
         except Exception as error:
             raise ValueError(f"Что-то не так на этапе обработки описания CV:\n{error}")
 
-    def cleaner_cv(self, description):
+    def cleaner_cv(self, content):
         """ Очищает неважную информацию о кандидате. """
-        return self.process_description(description, task_type="extract-desc")
+        return self.extractInfo(content, task_type="extract-content")
 
-    def summary_cv(self, description):
+    def summary_cv(self, content):
         """ Создает краткую суммаризацию описания кандидата. """
-        return self.process_description(description, task_type="summary-desc")
-    def classifier_employment_cv(self, description):
+        return self.extractInfo(content, task_type="summary-content")
+    def classifier_employment_cv(self, content):
     
         """ Создает краткую суммаризацию описания кандидата. """
-        return self.process_description(description, task_type="classifier-employment")
+        return self.extractInfo(content, task_type="classifier-employment")
     
-    def classifier_schedule_cv(self, description):
+    def classifier_schedule_cv(self, content):
         """ Создает краткую суммаризацию описания кандидата. """
-        return self.process_description(description, task_type="classifier-schedule")
+        return self.extractInfo(content, task_type="classifier-schedule")
     
-    def classifier_edu_cv(self, description):
+    def classifier_edu_cv(self, content):
         """ Создает краткую суммаризацию описания кандидата. """
-        return self.process_description(description, task_type="classifier-edu")
+        return self.extractInfo(content, task_type="classifier-edu")
 
 
     def get_user_cv(self, link=None):
@@ -243,16 +248,17 @@ class Parser:
             language = '-'
         try:
             education = ", ".join([edu.get_text(separator=' ', strip=True) for edu in soup.find_all(attrs={"data-qa": "resume-block-education"})])
+            print(education)
             education = self.classifier_edu_cv(education)
         except:
             education = '-'
-
         try:
             location = ", ".join([loc.get_text(separator=' ', strip=True).replace("\xa0", " ") for loc in soup.find_all(attrs={"data-sentry-source-file": "ResumePersonalLocation.jsx"})])            
         except:
             location = '-'
         try:
             description = soup.find_all(attrs={"data-qa": "resume-block-experience"})
+            print(description)
             description = self.cleaner_cv(description)            
             description = self.summary_cv(description)            
         except:
@@ -288,7 +294,9 @@ class Parser:
 
             for _, link in tqdm(links[:limit_objects], desc="CV: Создаем файл"):
                 try:
+                    print(1)
                     resume = self.get_user_cv(link)
+                    print(2)
                 except Exception as error:                    
                     continue
                 resumes.append(resume)    

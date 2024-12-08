@@ -1,39 +1,34 @@
-# from openai import OpenAI
+from agent.utils import LlmModelType
+from .openai_client import OpenAIClient
 import asyncio
 import openai
 
 api_key = "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"
 api_base = "http://localhost:7986/v1"
 
-
-import openai
-import pandas as pd
-from tqdm import tqdm
-
-openai.api_key = api_key
-
-endpoint = 'http://localhost:7986/v1'
 model = 'MTSAIR/Cotype-Nano'
-openai.api_base = endpoint
 
-# Possible system prompt:
-# {"role": "system", "content": "Ты — ИИ-помощник. Тебе дано задание: необходимо сгенерировать подробный и развернутый ответ."},
+client = OpenAIClient(model_type=LlmModelType.COTYIPE, api_base=api_base, api_key=api_key)
 
+response = client.invoke("Ты — ИИ-помощник. Тебе дано задание: необходимо сгенерировать подробный и развернутый ответ.",
+            "Выдели из текста самое главное. У мамы был пирог и она его купила.")
 
-response = openai.ChatCompletion.create(
-    model=model,
-    temperature=0.4, # 0.0 is also allowed
-    frequency_penalty=0.0,
-    max_tokens=2048,
-    top_p=0.8, # 0.1 is also allowed
-    messages=[
-        {"role": "system", "content": "Ты — ИИ-помощник. Тебе дано задание: необходимо сгенерировать подробный и развернутый ответ."},
-        {"role": "user", "content": "Придумай короткую историю про брата."}
-        ]
-    )
+print(response)
 
-answer = response["choices"][0]["message"]["content"]
-print(answer)
+# response = openai.ChatCompletion.create(
+#     model=model,
+#     temperature=0.4, # 0.0 is also allowed
+#     frequency_penalty=0.0,
+#     max_tokens=2048,
+#     top_p=0.8, # 0.1 is also allowed
+#     messages=[
+#         {"role": "system", "content": "Ты — ИИ-помощник. Тебе дано задание: необходимо сгенерировать подробный и развернутый ответ."},
+#         {"role": "user", "content": "Выдели из текста самое главное. У мамы был пирог и она его купила."}
+#         ]
+#     )
+
+# answer = response["choices"][0]["message"]["content"]
+# print(answer)
 
 
 

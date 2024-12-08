@@ -1,0 +1,4 @@
+openai_key="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"
+api_base = "http://localhost:7986/v1"
+
+hf_key = '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'

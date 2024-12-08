@@ -1,7 +1,7 @@
 from langchain_mistralai import ChatMistralAI
 from langchain.chains.combine_documents.stuff import StuffDocumentsChain
 
-from agent.util import get_system_prompt
+from agent.utils import get_system_prompt
 
 
 class AdvisorLLM:
