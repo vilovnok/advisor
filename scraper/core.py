@@ -109,7 +109,6 @@ class ScrapMaster:
         data = requests.get(url=link, headers={"user-agent": ua.random})
         soup = BeautifulSoup(data.content, "lxml")
 
-        print(link)
         try:
             name = soup.find(attrs={"class": "resume-block__title-text"}).text
         except:
@@ -131,7 +130,6 @@ class ScrapMaster:
         try:
             schedule_employment = [shell.get_text(separator=' ', strip=True) for shell in soup.find(attrs={"class": "resume-block-container"}).find_all("p")]
             
-            print(schedule_employment)
             employment = schedule_employment[0]
             schedule = schedule_employment[1]
 
@@ -277,28 +275,7 @@ class ScrapMaster:
         if not description:
             raise ValueError('переменная description не была передана. Пожалуйста, добавьте описание.')
         try:
-            # prompt = ChatPromptTemplate.from_messages(
-            # [("system", """
-            #   Ты агент который помогает выделить самое главное из описания вакансий, обращая внимание на:
-              
-            #   Описание: Чем компания занимается, какие технологии использует, что она предлагает и какие требования (ожидания) от кандидата?
-            #   Знание языка: какие языки требуются?
-            #   Образование: требуется или не требуеться ?        
-              
-            #   ВАЖНО: Если в вакансии какой либо информации не указано, то просто оставляй "-".
-            #   Избався от всей не нужной информации. Например, даты, название компаний и тд.
-            #   В область "знание языка" должно входить языки естественной речи (просто укажи если есть в описание).
-                            
-            #   Описание: {context}      
-            #   Твой ответ должен быть в одну строку (содержания описание, знание языка и образование должны быть разделены $):
-            #   """)])
-
-            # chain = prompt | self.model | StrOutputParser()
-            # result = chain.invoke({"context": description})
             reponse = self.client.extractInfo(description, "extract-vacancy")
-            print('-'*50)
-            print(reponse)
-            print('-'*50)
             return reponse.replace("\n", ". ")
         except Exception as error:
             raise ValueError(f"Что-то не так на этапе очистки описания Vacany:\n{error}")
@@ -321,7 +298,6 @@ class ScrapMaster:
         """ Получаем полную информацию о вакансии """
 
         try:  
-            print(link)
             response = requests.get(link)
             info_vacancy = response.json()
         except:
@@ -389,7 +365,6 @@ class ScrapMaster:
                     vac_info = self.get_info_vacancy(vacancy[3])
                     
                     skills = vac_info["skills"]
-                    print(skills)
                     title = self.prep_skills(skills=skills)
                     description = self.client.extractInfo(vac_info["description"], task_type='extract-content')
                     description = self.prep_description(description)
