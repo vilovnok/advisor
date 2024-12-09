@@ -5,7 +5,7 @@ class LlmModelType(Enum):
     OLLAMA = "ollama"
     MISTRAL = "mistral"
     COTYIPE = 'MTSAIR/Cotype-Nano' 
-    QWEN = 'Qwen/Qwen2.5-72B-Instruct'
+    QWEN = 'Qwen/Qwen2.5-7B-Instruct'
 
 class EmbedModelType(Enum):
     DEEPVK_USER = "deepvk/USER-bge-m3"

@@ -4,20 +4,15 @@ import requests
 import fake_useragent
 from tqdm import tqdm
 from bs4 import BeautifulSoup
-from agent.utils import LlmModelType
-from langchain_mistralai import ChatMistralAI
-from langchain_core.prompts import ChatPromptTemplate
-from agent.vllm_server.utils import openai_key, api_base
-from agent.vllm_server.openai_client import OpenAIClient
-from langchain_core.output_parsers import StrOutputParser
 
+from .worker import DataCraft
 
 
 ####################################################################
 ####################### BEGIN CV BEGIN #############################
 ####################################################################
 
-class Parser:
+class ScrapMaster:
     """ Парсер для вакансий и CV """
 
     def __init__(self, 
@@ -30,14 +25,9 @@ class Parser:
         self.area = area
         self.topic = topic
 
-        self._setup_model(api_key=api_key, model=model)
-
-    def _setup_model(self, api_key: str = None, model: str = None):
-        try:
-            self.client = OpenAIClient(model_type=LlmModelType.COTYIPE, api_base=api_base, api_key=openai_key)
-            self.model = ChatMistralAI(model=model, temperature=0, max_retries=2, api_key=api_key)
-        except Exception as error:    
-            raise ValueError(f"Что-то не так с моделью:\n{error}")
+        self.client = DataCraft(
+            api_key=api_key,
+            model=model)
 
 
     def _get_count_page_cv(self):
@@ -81,128 +71,32 @@ class Parser:
             raise ValueError(f"Что-то не так на этапе парсинга ссылок CV:\n{error}")
 
 
-    def extractInfo(self, content, task_type):
-        """
-        Обрабатывает описание кандидата в зависимости от указанной задачи.
 
-        :param content: текст описания для анализа.
-        :param task_type: тип задачи (например, 'extract' или 'summary-desc').
-        :return: результат обработки.
-        """
-        if not content:
-            raise ValueError('Переменная content не была передана. Пожалуйста, добавьте описание.')
-
-        prompts = {
-            "extract-content": """
-            Проанализируйте текст и выделите только информацию о том, чем занимался пользователь (его обязанности и задачи).
-            Ответ должен быть в строчку.
-            Текст для анализа:  
-            {context}
-            """,
-            "summary-content": """
-            Проанализируйте текст и создайте краткую суммаризацию, которая содержит только основную информацию о работе пользователя. 
-            Суммаризация должна быть краткой, понятной и содержать ключевые задачи и обязанности. Ответ должен быть в строчку. 
-            Пример ответа:  
-            Пользователь занимался настройкой CI/CD процессов, администрированием серверов, управлением контейнерами и мониторингом систем.
-            Текст для анализа:  
-            {context}
-            """,
-            "classifier-employment": """
-            Выделите и перечислите все упомянутые в тексте типы занятости в строгом порядке: полная занятость, частичная занятость, проектная работа, стажировка. Если тип занятости не указан в тексте, пропустите его. Если в тексте не упоминается ни один из известных типов занятости, укажите - .
-            
-            Возможные типы занятости:  
-            - полная занятость  
-            - частичная занятость  
-            - проектная работа  
-            - стажировка  
-            
-            Пример 1:  
-            Текст: полная занятость, частичная занятость, проектная работа, стажировка
-            Ответ: полная занятость, частичная занятость, проектная работа, стажировка
-            
-            Пример 2:  
-            Текст: стажировка, проектная работа, частичная занятость
-            Ответ: частичная занятость, проектная работа, стажировка            
-            
-            Текст для анализа:  
-            {context}
-            """,
-            "classifier-schedule": """
-            Выделите и перечислите все упомянутые в тексте графики работы в строгом порядке: полный день, сменный график, гибкий график, удаленная работа. Если график работы не указан в тексте, пропустите его. Если в тексте не упоминается ни один из известных графиков работы, укажите - .
-            
-            Возможные графики работы:  
-            - полный день  
-            - сменный график  
-            - гибкий график  
-            - удаленная работа  
-            
-            Пример 1:  
-            Текст: полный день, гибкий график, удаленная работа
-            Ответ: полный день, гибкий график, удаленная работа
-            
-            Пример 2:  
-            Текст: удаленная работа, гибкий график
-            Ответ: гибкий график, удаленная работа
-            
-            Текст для анализа:  
-            {context}
-            """,
-            "classifier-edu": """
-            Проанализируйте текст и определите тип образования пользователя. Укажите, является ли образование высшим или неоконченным, а также техническое оно или нет. Если невозможно определить информацию об образовании, укажите -.
-
-            Пример 1:  
-            Текст: "Окончил Московский государственный технический университет имени Баумана по специальности инженер."  
-            Ответ: Высшее образование, техническое  
-
-            Пример 2:  
-            Текст: "Учился в Санкт-Петербургском университете, но не закончил."  
-            Ответ: Неоконченное высшее образование, нетехническое  
-
-            Пример 3:  
-            Текст: "Получил степень бакалавра в области компьютерных наук."  
-            Ответ: Высшее образование, техническое  
-
-            Пример 4:  
-            Текст: "Получил сертификат."  
-            Ответ: -  
-
-            Текст для анализа:  
-            {context}
-            """,            
-        }
-
-        if task_type not in prompts:
-            raise ValueError(f"Неподдерживаемый тип задачи: {task_type}")
-
-        try:
-            system_prompt = prompts[task_type]
-            # prompt = ChatPromptTemplate.from_messages([("system", prompt_text)])
-            # chain = prompt | self.model | StrOutputParser()
-            # result = chain.invoke({"context": description})
-            result = self.client.invoke(prompt=system_prompt, content=content)
-            return result
-        except Exception as error:
-            raise ValueError(f"Что-то не так на этапе обработки описания CV:\n{error}")
-
-    def cleaner_cv(self, content):
-        """ Очищает неважную информацию о кандидате. """
-        return self.extractInfo(content, task_type="extract-content")
+# TODO: Задачи для модели
+    def extract_content_cv(self, content):
+        """ Очищает content от html-тэгов о кандидате. """
+        return self.client.extractInfo(content, task_type="extract-content")
+    
+    def extract_info_cv(self, content):
+        """ Выделяет информацию о кандидате. """
+        return self.client.extractInfo(content, task_type="extract-info")
 
     def summary_cv(self, content):
-        """ Создает краткую суммаризацию описания кандидата. """
-        return self.extractInfo(content, task_type="summary-content")
+        """ Суммаризует описания кандидата. """
+        return self.client.extractInfo(content, task_type="summary-content")
     def classifier_employment_cv(self, content):
-    
-        """ Создает краткую суммаризацию описания кандидата. """
-        return self.extractInfo(content, task_type="classifier-employment")
+        """ Выделяет тип занятости. """
+        return self.client.extractInfo(content, task_type="classifier-employment")
     
     def classifier_schedule_cv(self, content):
-        """ Создает краткую суммаризацию описания кандидата. """
-        return self.extractInfo(content, task_type="classifier-schedule")
+        """ Выделяет график работы. """
+        return self.client.extractInfo(content, task_type="classifier-schedule")
     
     def classifier_edu_cv(self, content):
-        """ Создает краткую суммаризацию описания кандидата. """
-        return self.extractInfo(content, task_type="classifier-edu")
+        """ Выделяет образование. """
+        return self.client.extractInfo(content, task_type="classifier-edu")
+################################################################
+
 
 
     def get_user_cv(self, link=None):
@@ -215,6 +109,7 @@ class Parser:
         data = requests.get(url=link, headers={"user-agent": ua.random})
         soup = BeautifulSoup(data.content, "lxml")
 
+        print(link)
         try:
             name = soup.find(attrs={"class": "resume-block__title-text"}).text
         except:
@@ -235,10 +130,12 @@ class Parser:
             professional_roles = '-'   
         try:
             schedule_employment = [shell.get_text(separator=' ', strip=True) for shell in soup.find(attrs={"class": "resume-block-container"}).find_all("p")]
-            employment = schedule_employment[0].split(':')[-1]
-            schedule = schedule_employment[1].split(':')[-1]
+            
+            print(schedule_employment)
+            employment = schedule_employment[0]
+            schedule = schedule_employment[1]
 
-            employment = self.classifier_employment_cv(employment)            
+            employment = self.classifier_employment_cv(employment)  
             schedule = self.classifier_schedule_cv(schedule)
         except:
             employment, schedule = '-', '-'       
@@ -248,7 +145,6 @@ class Parser:
             language = '-'
         try:
             education = ", ".join([edu.get_text(separator=' ', strip=True) for edu in soup.find_all(attrs={"data-qa": "resume-block-education"})])
-            print(education)
             education = self.classifier_edu_cv(education)
         except:
             education = '-'
@@ -258,12 +154,11 @@ class Parser:
             location = '-'
         try:
             description = soup.find_all(attrs={"data-qa": "resume-block-experience"})
-            print(description)
-            description = self.cleaner_cv(description)            
+            description = self.extract_content_cv(description)
+            description = self.extract_info_cv(description)              
             description = self.summary_cv(description)            
         except:
             raise ValueError('Invalid value')
-
 
         resume = {
             "name": name,                                
@@ -288,15 +183,13 @@ class Parser:
             raise ValueError('Переменная ex_period не была передана. Пожалуйста, выбирите из предложенного перечня: "all_time", "noExperience".')
                 
         try:
-            links = self.get_links_cv(ex_period=ex_period, limit_page=int(limit_page))
-            
+            links = self.get_links_cv(ex_period=ex_period, limit_page=int(limit_page))            
             if len(links) < limit_objects: limit_objects = None
 
             for _, link in tqdm(links[:limit_objects], desc="CV: Создаем файл"):
+
                 try:
-                    print(1)
-                    resume = self.get_user_cv(link)
-                    print(2)
+                    resume = self.get_user_cv(link)                    
                 except Exception as error:                    
                     continue
                 resumes.append(resume)    
@@ -370,7 +263,7 @@ class Parser:
         """ Подготовить строку для скилов """
 
         if not skills:
-            return 'unknown'
+            return '-'
         sent = ''
         for skil in skills:
             sent+= f'{skil["name"]}, '
@@ -384,26 +277,29 @@ class Parser:
         if not description:
             raise ValueError('переменная description не была передана. Пожалуйста, добавьте описание.')
         try:
-            prompt = ChatPromptTemplate.from_messages(
-            [("system", """
-              Ты агент который помогает выделить самое главное из описания вакансий, обращая внимание на:
+            # prompt = ChatPromptTemplate.from_messages(
+            # [("system", """
+            #   Ты агент который помогает выделить самое главное из описания вакансий, обращая внимание на:
               
-              Описание: Чем компания занимается, какие технологии использует, что она предлагает и какие требования (ожидания) от кандидата?
-              Знание языка: какие языки требуются?
-              Образование: требуется или не требуеться ?        
+            #   Описание: Чем компания занимается, какие технологии использует, что она предлагает и какие требования (ожидания) от кандидата?
+            #   Знание языка: какие языки требуются?
+            #   Образование: требуется или не требуеться ?        
               
-              ВАЖНО: Если в вакансии какой либо информации не указано, то просто оставляй None.
-              Избався от всей не нужной информации. Например, даты, название компаний и тд.
-              В область "знание языка" должно входить языки естественной речи (просто укажи если есть в описание).
+            #   ВАЖНО: Если в вакансии какой либо информации не указано, то просто оставляй "-".
+            #   Избався от всей не нужной информации. Например, даты, название компаний и тд.
+            #   В область "знание языка" должно входить языки естественной речи (просто укажи если есть в описание).
                             
-              Описание: {context}      
-              Твой ответ должен быть в одну строку (содержания описание, знание языка и образование должны быть разделены $):
-              """)])
+            #   Описание: {context}      
+            #   Твой ответ должен быть в одну строку (содержания описание, знание языка и образование должны быть разделены $):
+            #   """)])
 
-            chain = prompt | self.model | StrOutputParser()
-            result = chain.invoke({"context": description})
-
-            return result.replace("\n", ". ")
+            # chain = prompt | self.model | StrOutputParser()
+            # result = chain.invoke({"context": description})
+            reponse = self.client.extractInfo(description, "extract-vacancy")
+            print('-'*50)
+            print(reponse)
+            print('-'*50)
+            return reponse.replace("\n", ". ")
         except Exception as error:
             raise ValueError(f"Что-то не так на этапе очистки описания Vacany:\n{error}")
 
@@ -425,6 +321,7 @@ class Parser:
         """ Получаем полную информацию о вакансии """
 
         try:  
+            print(link)
             response = requests.get(link)
             info_vacancy = response.json()
         except:
@@ -443,10 +340,12 @@ class Parser:
             raise ValueError('Invalid value')
         try:
             schedule = info_vacancy['schedule']['name']
+            schedule = self.classifier_schedule_cv(schedule)
         except:
             schedule = '-'
         try:
             employment = info_vacancy['employment']['name']
+            employment = self.classifier_employment_cv(employment)
         except:
             employment = '-'            
         try:
@@ -490,12 +389,12 @@ class Parser:
                     vac_info = self.get_info_vacancy(vacancy[3])
                     
                     skills = vac_info["skills"]
+                    print(skills)
                     title = self.prep_skills(skills=skills)
-                    description = self.prep_description(vac_info["description"])
-                    description, language, education = description.split("$")                                        
-                    education = True if 'None' not in education else '-'
-                    language = language if 'None' not in language else '-'
-
+                    description = self.client.extractInfo(vac_info["description"], task_type='extract-content')
+                    description = self.prep_description(description)
+                    description, language, education = description.split("$")                                                            
+                    
                     f.write(f'Вакансия: {vac_info["name"]}\n')
                     f.write(f'Опыт работы: {vac_info["experience"]}\n')
                     f.write(f'Описание: {description}\n')

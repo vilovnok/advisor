@@ -1,7 +1,7 @@
 import os
 import logging
 import argparse
-from scraper.parser import Parser
+from .core import ScrapMaster
 
 
 api_key = 'hIBq3oF9S5hz3YmoxEDmxK9OmZW91BSx'        
@@ -31,15 +31,15 @@ if __name__ == "__main__":
     limit_objects = args.limit_objects
     only = args.only if args.only else 'all'
 
-    parser = Parser(topic=topic, api_key=api_key, model=model, area=area)
+    client = ScrapMaster(topic=topic, api_key=api_key, model=model, area=area)
     
     if only == 'cv':
-        parser.create_file_cv(limit_page=limit_page, limit_objects=int(limit_objects))
+        client.create_file_cv(limit_page=limit_page, limit_objects=int(limit_objects))
         logging.info(f"CV: Все данные по {topic} получены.")
     elif only == 'vacancy':
-        parser.create_file_vacancy(limit_page=limit_page, limit_objects=int(limit_objects))
+        client.create_file_vacancy(limit_page=limit_page, limit_objects=int(limit_objects))
         logging.info(f"Vacancy: Все данные по {topic} получены.")
     elif only == 'all':
-        parser.create_file_cv(limit_page=limit_page, limit_objects=int(limit_objects))
-        parser.create_file_vacancy(limit_page=limit_page, limit_objects=int(limit_objects))
+        client.create_file_cv(limit_page=limit_page, limit_objects=int(limit_objects))
+        client.create_file_vacancy(limit_page=limit_page, limit_objects=int(limit_objects))
         logging.info("CV+Vacancy: Все данные получены.")
