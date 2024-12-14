@@ -12,6 +12,8 @@ class EmbedModelType(Enum):
     MiniLM = "sentence-transformers/all-MiniLM-L6-v2"
     BM25 = "Qdrant/bm25"
     BERT = "colbert-ir/colbertv2.0"
+    E5_LARGE = 'intfloat/multilingual-e5-large'
+    E5_LARGE_INSTRUCT = 'intfloat/multilingual-e5-large-instruct'
 
 
 #TODO: насколько это нужно 

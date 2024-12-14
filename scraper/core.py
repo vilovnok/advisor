@@ -244,7 +244,6 @@ class ScrapMaster:
         all_data, page = [], 0
         while True:              
             n_obj = self.get_vacancies(page=page)            
-
             if len(n_obj) == 0:
                 break        
             elif not n_obj:

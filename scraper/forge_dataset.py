@@ -22,9 +22,10 @@ class ForgeDataset():
         'backend': ['backend', 'бекэнд', 'бэкенд', 'go', 'golang', 'back end'],
         'frontend': ['frontend', 'фронтенд', 'web', 'веб', 'фронтэнда', 'front end'],
         'devops': ['devops', 'девопс'],
-        'аналитик': ['аналитик'],
-        'nlp-разработчик': ['nlp']
-
+        'аналитик': ['аналитик','analyst'],
+        'nlp': ['nlp','llm','rag','ml engineer','engineer'],
+        'researcher': ['researcher', 'data scientist','deep learning engineer','software'],
+        'manager': ['manager','lead']
     }
 
 

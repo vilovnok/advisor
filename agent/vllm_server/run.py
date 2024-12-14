@@ -1,7 +1,6 @@
 import subprocess
 from .utils import hf_key
 from huggingface_hub import login
-from agent.utils import LlmModelType
 
 
 login(token=hf_key)
