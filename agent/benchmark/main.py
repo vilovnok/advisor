@@ -3,14 +3,7 @@ import pandas as pd
 
 
 query_text = """
-Вакансия: Frontend разработчик (TypeScript/React)
-Опыт работы: От 3 до 6 лет
-Описание: Разработка нового функционала и поддержка существующего в личных кабинетах и порталах банка, интеграция с внешними системами. Опыт работы на методологии Agile. 
-Ключевые навыки: JavaScript, Git, Webpack, Node.js, TypeScript.
-Тип занятости: полная занятость
-График работы: удаленная работа
-Знание языков:  Русский — Родной, Английский — B1 — Средний. 
-Образование:  Высшее образование, техническое.
+Резюме: Backend разработчик Опыт работы: 4 года 1 месяц Описание: Занимался backend разработкой и созданием сайтов. Ключевые навыки: Работоспособность, • Коммуникабельность, способность устанавливать контакты, • Инициативность, • Ответственность, • Отзывчивость Тип занятости: полная занятость, частичная занятость График работы: полный день, гибкий график Знание языков: Кыргызский — Родной, Английский — B2 — Средне-продвинутый, Русский — C2 — В совершенстве Образование: Неоконченное высшее образование, техническое
 """
 
 
@@ -22,16 +15,18 @@ models = [
     ["all-MiniLM-L6-v2", "bm25", "colbertv2.0"],
     ["all-MiniLM-L6-v2", "bm25"],
     ["deepvk/USER-bge-m3", "bm25"],
+    ["deepvk/USER-bge-m3","colbertv2.0"],
+    ["deepvk/USER-bge-m3","all-MiniLM-L6-v2"],
+    ["all-MiniLM-L6-v2", "colbertv2.0"],
     ["deepvk/USER-bge-m3"],
     ["all-MiniLM-L6-v2"],
     ["colbertv2.0"]
 ]
 
 
-catalog = 'cv'
-category = 'frontend'
-limit = 10
-ground_truth = "cv-frontend"
+catalog = 'vac'
+category = 'backend'
+ground_truth = f"{catalog}-{category}"
 
 client = Benchmark(collection_name='advisor_db', url="http://localhost:6333")
 
@@ -39,8 +34,9 @@ metrics_table = client.benchmark(
     models=models, 
     ground_truth=ground_truth, 
     query_text=query_text,
-    limit=10,
-    # filter_options={'catalog':catalog}
+    topK=10,
+    limit=15,
+    filter_options={'catalog':catalog}
 )
 
 print(metrics_table)

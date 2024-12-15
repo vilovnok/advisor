@@ -11,34 +11,58 @@ from agent.utils import EmbedModelType
 
 
 class Benchmark:
+    """
+    Класс для гибридного поиска и оценки качества ранжирования.
+    """
+
     def __init__(
-            self,
-            collection_name: str='advisor_db',
-            url: str="http://localhost:6333",
+        self,
+        collection_name: str = 'advisor_db',
+        url: str = "http://localhost:6333",
     ):
         self._setup_database(url=url, collection_name=collection_name)
         self._setup_encoders()
 
+    def _setup_database(self, url: str = None, collection_name: str = None):
+        """
+        Настраивает подключение к Qdrant.
 
-    def _setup_database(self, url:str=None, collection_name:str=None):
+        Args:
+            url (str): URL адрес базы данных Qdrant.
+            collection_name (str): Название коллекции.
+        """
         self.client = QdrantClient(f'{url}')
         if not self.client.collection_exists(collection_name):
-            raise ValueError("Collection %s is not exists!" % collection_name)
+            raise ValueError(f"Collection {collection_name} does not exist!")
 
     def _setup_encoders(self):
-        self.dense_embedding_model_MiniLM = TextEmbedding(EmbedModelType.MiniLM.value)
-        self.dense_embedding_model_DEEPVK_USER = SentenceTransformer(EmbedModelType.DEEPVK_USER.value)
-        self.bm25_embedding_model = Bm25(EmbedModelType.BM25.value)
-        self.late_interaction_embedding_model = LateInteractionTextEmbedding(EmbedModelType.BERT.value)        
-
-    def create_prefetch_from_models(self, query: str, models_list: List[str], limit: int) -> List[models.Prefetch]:
         """
-        Создает список Prefetch для гибридного поиска на основе списка моделей.
+        Инициализирует модели для эмбеддингов.
+        """
+        self.dense_embedding_model_MiniLM = TextEmbedding(
+            EmbedModelType.MiniLM.value
+        )
+        self.dense_embedding_model_DEEPVK_USER = SentenceTransformer(
+            EmbedModelType.DEEPVK_USER.value
+        )
+        self.bm25_embedding_model = Bm25(EmbedModelType.BM25.value)
+        self.late_interaction_embedding_model = LateInteractionTextEmbedding(
+            EmbedModelType.BERT.value
+        )
+
+    def create_prefetch_from_models(
+        self,
+        query: str,
+        models_list: List[str],
+        limit: int,
+    ) -> List[models.Prefetch]:
+        """
+        Создает список Prefetch для гибридного поиска.
 
         Args:
             query (str): Текст запроса.
-            models_list (List[str]): Список строковых названий моделей.
-            limit (int): Максимальное количество результатов на запрос.
+            models_list (List[str]): Список моделей.
+            limit (int): Ограничение результатов.
 
         Returns:
             List[models.Prefetch]: Список объектов Prefetch.
@@ -57,7 +81,9 @@ class Benchmark:
             elif model_name == "bm25":
                 prefetch.append(
                     models.Prefetch(
-                        query=models.SparseVector(**next(self.bm25_embedding_model.query_embed(query)).as_object()),
+                        query=models.SparseVector(
+                            **next(self.bm25_embedding_model.query_embed(query)).as_object()
+                        ),
                         using="bm25",
                         limit=limit,
                     )
@@ -73,97 +99,109 @@ class Benchmark:
             elif model_name == "deepvk/USER-bge-m3":
                 prefetch.append(
                     models.Prefetch(
-                        query=self.dense_embedding_model_DEEPVK_USER.encode(query, normalize_embeddings=True),
+                        query=self.dense_embedding_model_DEEPVK_USER.encode(
+                            query, normalize_embeddings=True
+                        ),
                         using="deepvk/USER-bge-m3",
                         limit=limit,
                     )
                 )
             else:
-                raise ValueError(f"Неизвестная модель: {model_name}")
+                raise ValueError(f"Unknown model: {model_name}")
 
         return prefetch
 
-
     def hybrid_query_dynamic(
-            self,
-            collection_name: str,         
-            query: str, 
-            models_list: List[str], 
-            limit: int=10,
-            filter_options: dict=None):
+        self,
+        collection_name: str,
+        query: str,
+        models_list: List[str],
+        limit: int = 10,
+        filter_options: dict = None,
+    ):
         """
-        Выполняет гибридный запрос с использованием динамического создания Prefetch.
+        Выполняет гибридный запрос с динамическим Prefetch.
 
         Args:
-            collection_name (str): Название коллекции в базе.
+            collection_name (str): Название коллекции.
             query (str): Текст запроса.
-            models_list (List[str]): Список названий моделей для Prefetch.
-            limit (int): Максимальное количество результатов.
+            models_list (List[str]): Список моделей.
+            limit (int): Ограничение результатов.
+            filter_options (dict): Дополнительные фильтры.
 
         Returns:
             Any: Результаты запроса.
         """
-        
         try:
-            prefetch = self.create_prefetch_from_models(query=query, models_list=models_list, limit=limit)
+            prefetch = self.create_prefetch_from_models(
+                query=query, models_list=models_list, limit=limit
+            )
             response = self.client.query_points(
                 collection_name=collection_name,
                 prefetch=prefetch,
-                query=models.FusionQuery(
-                    fusion=models.Fusion.RRF,
-                ),
+                query=models.FusionQuery(fusion=models.Fusion.RRF),
                 with_payload=True,
-                limit=limit,    
+                limit=limit,
                 query_filter=models.Filter(
                     must=[
                         models.FieldCondition(key=k, match=models.MatchValue(value=v))
                         for k, v in filter_options.items()
                     ]
-                ) if filter_options else None,    
+                ) if filter_options else None,
             )
             return response
         except Exception as e:
-            raise ValueError(f"Error during evaluation: {e}")
+            raise ValueError(f"Error during query: {e}")
 
-    def evaluate_ranking(self, 
-                        ground_truth:str, 
-                        result, 
-                        limit:int=10):
-        try:        
+    def evaluate_ranking(
+        self,
+        ground_truth: str,
+        result,
+        topK: int = 10,
+    ):
+        """
+        Оценивает качество ранжирования.
+
+        Args:
+            ground_truth (str): Истинное значение.
+            result: Результаты запроса.
+            limit (int): Ограничение на количество результатов.
+
+        Returns:
+            dict: Метрики качества ранжирования.
+        """
+        try:
             points = result.points
             if not points:
                 raise ValueError("No points returned from the query.")
 
-            targets = {}
-            for point in points:
-                catalog = point.payload['catalog']
-                category = point.payload['category']
-                similar = f"{catalog}-{category}"
-
-                target = 1 if similar == ground_truth else 0
-                targets[f"doc_{point.id}"] = target
+            targets = {
+                f"doc_{point.id}": 1 if f"{point.payload['catalog']}-{point.payload['category']}" == ground_truth else 0
+                for point in points
+            }
 
             qrels = {"query_1": targets}
             run = {"query_1": {f"doc_{point.id}": point.score for point in points}}
-            
+
             ranking_assessment = eval(
-                qrels, 
-                run, 
-                metrics=["ndcg", f"precision@{limit}", f"map@{limit}", 
-                        f"recall@{limit}", f"mrr@{limit}", f"dcg@{limit}"], 
-                make_comparable=True
+                qrels,
+                run,
+                metrics=[
+                    "ndcg", f"precision@{topK}", f"map@{topK}",
+                    f"recall@{topK}", f"mrr@{topK}", f"dcg@{topK}"
+                ],
+                make_comparable=True,
             )
-            
             return ranking_assessment
         except Exception as e:
             raise ValueError(f"Error during evaluation: {e}")
 
-        
     def evaluate(self, 
             query_text: str,
             models_list:list,
             ground_truth: str,
-            limit:int=10,
+            topK:int=10,
+            limit:int=20,
             filter_options: dict=None,
         ):
             response = self.hybrid_query_dynamic(collection_name='advisor_db', 
@@ -173,176 +211,49 @@ class Benchmark:
                             filter_options=filter_options)
                     
             metrics = self.evaluate_ranking(ground_truth=ground_truth, 
-                                    result=response, limit=limit)
+                                    result=response, topK=topK)
 
             return metrics
-    
-    def benchmark(self, 
-        models:list, 
-        ground_truth:str, 
-        query_text:str, 
-        limit=10,
-        filter_options: dict=None,
-        ):
+
+
+    def benchmark(
+        self,
+        models: list[list[str]],
+        ground_truth: str,
+        query_text: str,
+        topK: int=10,
+        limit: int = 20,
+        filter_options: dict = None,
+    ):
         """
-        Генерирует таблицу метрик для списка групп моделей.
+        Генерирует таблицу метрик для групп моделей.
 
         Args:
-            client: Объект клиента с методом evaluate.
-            models_lists (list): Список групп моделей для оценки.
-            ground_truth (str): Истинные данные для оценки.
+            models (list): Список моделей.
+            ground_truth (str): Истинное значение.
             query_text (str): Текст запроса.
-            limit (int): Ограничение на количество результатов (по умолчанию 10).
+            limit (int): Ограничение на количество результатов.
 
         Returns:
-            pd.DataFrame: Таблица метрик для каждой группы моделей.
+            pd.DataFrame: Таблица с метриками.
         """
+        scores = []
 
-        scorse = []
         for model in models:
             try:
                 metrics = self.evaluate(
+                    topK=topK,
                     limit=limit,
                     models_list=model,
                     ground_truth=ground_truth,
                     query_text=query_text,
-                    filter_options=filter_options
-                )            
-                scorse.append({"models": ", ".join(model), **metrics})
+                    filter_options=filter_options,
+                )
+                scores.append({"models": ", ".join(model), **metrics})
             except Exception as e:
-                raise ValueError(f"Ошибка при оценке для моделей {model}: {e}")
-        
-        metrics_table = pd.DataFrame(scorse)
+                raise ValueError(f"Error evaluating models {model}: {e}")
+
+        metrics_table = pd.DataFrame(scores)
         metrics_table = metrics_table[["models"] + [col for col in metrics_table.columns if col != "models"]]
-    
+
         return metrics_table
-
-
-    # def benchmark(self, 
-    #         query_text: str,
-    #         models_lists:list,
-    #         ground_truth: str,
-    #         limit:int=10,
-    #         filter_options: dict=None,
-    #     ):
-
-    #     # benchmark = dict()
-    #     qrels = None
-    #     benchmark = {"qrels": [], "runs": []}
-
-    #     for idx, models_list in enumerate(models_lists):
-
-    #         result = self.hybrid_query_dynamic(
-    #             collection_name='advisor_db', 
-    #             query=query_text, 
-    #             models_list=models_list, 
-    #             limit=limit, 
-    #             filter_options=filter_options
-    #         )
-
-    #         try:
-    #             current_qrels, current_run = self.evaluate_ranking(
-    #                 ground_truth=ground_truth, 
-    #                 result=result, 
-    #                 limit=limit, 
-    #                 table=True
-    #             )
-    #         except Exception as e:
-    #             print(f"Error during evaluation for models {models_list}: {e}")
-    #             continue
-
-    #         if not current_qrels or not current_run:
-    #             print(f"Skipping models {models_list}: Empty qrels or run.")
-    #             continue
-
-    #         if qrels is None:
-    #             qrels = current_qrels
-    #         elif qrels != current_qrels:
-    #             print(f"Warning: Несогласованные qrels для моделей {models_list}. Пропускаем эти данные.")
-    #             continue
-
-
-    #         model_name = "-".join(models_list)
-            
-
-    #         benchmark['qrels'].append(current_qrels)
-    #         benchmark['runs'].append(Run(current_run, name=f"{model_name}"))
-        
-    #     if not benchmark["runs"]:
-    #         raise ValueError("Не удалось собрать данные для сравнения моделей.")
-
-    #     metrics_comparison = self.compare_models(
-    #         qrels=benchmark['qrels'][0],
-    #         runs=benchmark['runs'],
-    #         metrics=["precision@10", "recall@10", "mrr@10", "dcg@10", "ndcg@10"],
-    #     )
-
-    #     print("Comparison Results:", metrics_comparison)
-    #     return metrics_comparison
-
-
-    # def compare_models(
-    #         self,
-    #         qrels: dict,
-    #         runs: list,
-    #         metrics: list = None
-    #     ) -> dict:
-    #     """
-    #     Сравнивает метрики для разных моделей с использованием `ranx.compare`.
-
-    #     Args:
-    #         qrels (dict): Релевантность (qrels) в формате, ожидаемом ranx.
-    #         runs (list): Список ранжированных результатов от различных моделей.
-    #         metrics (list): Список метрик для сравнения. По умолчанию включает стандартные метрики.
-
-    #     Returns:
-    #         dict: Результаты сравнения метрик для разных моделей.
-    #     """
-    #     if metrics is None:
-    #         metrics = ["precision@10", "recall@10", "mrr@10", "dcg@10", "ndcg@10"]
-
-    #     try:
-    #         results = compare(
-    #             qrels=qrels,
-    #             runs=runs,
-    #             metrics=metrics
-    #         )
-    #         return results
-    #     except Exception as e:
-    #         raise ValueError(f"Ошибка при сравнении метрик: {e}")
-        
-
-    # def table_evaluate_ranking(self, 
-    #                     ground_truth:str, 
-    #                     result, 
-    #                     limit:int=2,
-    #                     table:bool=False):
-    #     try:        
-    #         points = result.points
-    #         if not points:
-    #             raise ValueError("No points returned from the query.")
-
-    #         targets = {}
-    #         for point in points:
-    #             catalog = point.payload['catalog']
-    #             category = point.payload['category']
-    #             similar = f"{catalog}-{category}"
-
-    #             target = 1 if similar == ground_truth else 0
-    #             targets[f"doc_{point.id}"] = target
-
-    #         qrels = {"query_1": targets}
-    #         run = {"query_1": {f"doc_{point.id}": point.score for point in points}}
-    #         if not table:
-    #             ranking_assessment = eval(
-    #                 qrels, 
-    #                 run, 
-    #                 metrics=["ndcg", f"precision@{limit}", f"map@{limit}"], 
-    #                 make_comparable=True
-    #             )
-                
-    #             return ranking_assessment
-    #         return zip(qrels, run)
-
-    #     except Exception as e:
-    #         raise ValueError(f"Error during evaluation: {e}")  
