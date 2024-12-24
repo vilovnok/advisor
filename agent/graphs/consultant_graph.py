@@ -18,11 +18,11 @@ from agent.utils import LlmModelType
 
 class ConsultantGraph:
     def __init__(self, 
-                 name: str="llama_3.1 from ollama",
-                 model_name: str="llama3.1",
-                 model_type: LlmModelType=LlmModelType.OLLAMA,
-                 show_logs: bool = False, 
-                 save_online_metric: bool = False) -> None:
+                name: str="llama_3.1 from ollama",
+                model_name: str="llama3.1",
+                model_type: LlmModelType=LlmModelType.OLLAMA,
+                show_logs: bool = False, 
+                save_online_metric: bool = False) -> None:
         
         self.llm = LlamaLLM(name=name, model_name=model_name, model_type=model_type)
         self.show_logs = show_logs

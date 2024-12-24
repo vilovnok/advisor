@@ -13,10 +13,7 @@ class LlamaLLM(_BaseLLM):
         print(model_name)
         if LlmModelType.OLLAMA == model_type:
             llm = OllamaLLM(model=model_name)
-        elif LlmModelType.MISTRAL == model_type:
-            llm = ChatMistralAI(model=model_name, 
-                                temperature=0.5,
-                                max_retries=2,
-                                api_key=LlamaLLM.api_key)
+        elif LlmModelType.vLLM == model_type:
+            llm = 
             
         super().__init__(name, llm)

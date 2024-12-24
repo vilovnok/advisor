@@ -1,9 +1,7 @@
 # Agent
 
-1) доработать ноутбук в retriever
-2) Попробовать ruMTEB
-3) поменять vac на vacancy
+1) доработать pipeline (Изменить BaseLLM)
+2) поменять vac на vacancy
 
 # Retriever 
-
-1) доработать search с hybrid-search
+1) попробовать другие модели
