@@ -2,9 +2,8 @@ import yaml
 from enum import Enum
 
 class LlmModelType(Enum):
-    OLLAMA = "ollama"
-    # QWEN = 'Qwen/Qwen2.5-7B-Instruct'
-    vLLM = 'vllm'
+    LLAMA31 = "llama3.1"
+    QWEN = 'Qwen/Qwen2.5-7B-Instruct'
 
 class EmbedModelType(Enum):
     DEEPVK_USER = "deepvk/USER-bge-m3"

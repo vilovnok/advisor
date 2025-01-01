@@ -7,7 +7,8 @@ from langchain_core.prompts import PromptTemplate
 
 from agent.llms._base import _BaseLLM
 from agent.graphs.state import State
-
+from agent.vllm_server.openai_client import OpenAIClient
+from agent.utils import LlmModelType
 
 
 class _BaseNode(ABC):
@@ -22,6 +23,7 @@ class _BaseNode(ABC):
         self.name = name
         self.description = description
         self.chain = PromptTemplate.from_template(prompt) | llm.llm | output_parser
+        self.vllm = VLLMAdapter(prompt=prompt)
 
     def get_summary(self, history: List[BaseMessage]):
         print(f'History::: {history}')
@@ -48,3 +50,17 @@ class _BaseRouter(ABC):
 
     def invoke(self, state: State):
         pass
+
+
+class VLLMAdapter(ABC):
+    def __init__(self, prompt:str):
+        self.prompt = prompt
+
+        self._setupVLLM()
+
+    def _setupVLLM(self):            
+        self.vllm_client = OpenAIClient(model_type=LlmModelType.QWEN)        
+    
+    def invoke(self, content: str):
+        response = self.vllm_client.invoke(prompt=self.prompt, content=content)
+        return response

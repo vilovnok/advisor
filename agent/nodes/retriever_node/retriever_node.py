@@ -31,7 +31,7 @@ class RetrieverNode(_BaseNode):
         self.score_threshold = score_threshold
         self.topK = topK
         self.show_logs = show_logs
-        self.retriever = Retriever(EmbedModelType.MiniLM) if not retriever else retriever
+        self.retriever = Retriever(device=0) if not retriever else retriever
 
     def invoke(self, state: State):
         history = state.history
@@ -42,14 +42,14 @@ class RetrieverNode(_BaseNode):
         retrieved_info = self.retriever.search(
             query=history[-1].content,
             collection_name=RetrieverNode.DATABASE_COLLECTION_NAME,
-            filter_options={"catalog": catalog_name, "category": category_name},
+            filter_options={"catalog": catalog_name, 'category': category_name},
             topk=self.topK,
-            score_threshold=self.score_threshold
+            score_threshold=self.score_threshold, 
+            model_type=EmbedModelType.DEEPVK_USER
         )
 
         if self.show_logs:
-            print(self.name)
-            # print(f"Summary: {self.get_summary(history)}")            
+            print(self.name)          
             print(f'catalog_name: {catalog_name}\ncategory_name: {category_name}')
             for i in [item.payload["content"] for item in retrieved_info]:
                 print('*'*50)

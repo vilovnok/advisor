@@ -1,12 +1,13 @@
 import openai
 from agent.utils import LlmModelType
+from agent.vllm_server.utils import openai_key, api_base
 
 
 class OpenAIClient:
     def __init__(self, 
                 model_type: LlmModelType,
-                api_key: str,
-                api_base: str="http://localhost:7986"):
+                api_key: str=openai_key,
+                api_base: str=api_base):
         
         self.setup_model(model_type)        
         self.setup_openai(api_key=api_key, api_base=api_base) 
@@ -16,9 +17,9 @@ class OpenAIClient:
         openai.api_base = api_base
 
     def setup_model(self, model_type:LlmModelType):
-        if model_type == LlmModelType.COTYIPE:
-            model = LlmModelType.COTYIPE.value
-        elif model_type == LlmModelType.QWEN:
+        # if model_type == LlmModelType.COTYIPE:
+        #     model = LlmModelType.COTYIPE.value
+        if model_type == LlmModelType.QWEN:
             model = LlmModelType.QWEN.value
 
         self.model = model

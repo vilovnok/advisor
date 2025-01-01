@@ -29,7 +29,8 @@ class ClassifierNode(_BaseNode):
         content = history[-1].content
         
         catalog_name = 'vac' if "вакансия" in content else 'cv'
-        category_name = self.chain.invoke({"category": content})
+        # category_name = self.chain.invoke({"category": content})
+        category_name = self.vllm.invoke(content=content)
 
         if self.show_logs:
             print(self.name)            

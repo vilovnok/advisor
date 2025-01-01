@@ -20,7 +20,7 @@ class ConsultantGraph:
     def __init__(self, 
                 name: str="llama_3.1 from ollama",
                 model_name: str="llama3.1",
-                model_type: LlmModelType=LlmModelType.OLLAMA,
+                model_type: LlmModelType=LlmModelType.LLAMA31,
                 show_logs: bool = False, 
                 save_online_metric: bool = False) -> None:
         
@@ -36,9 +36,7 @@ class ConsultantGraph:
     
     def _build_graph(self):
         graph = StateGraph(State)
-
-        # retriever = Retriever(ModelType.DEEPVK_USER)
-        retriever = None
+        retriever = Retriever(device=0)
 
         # Initialize nodes
         paraphrase_node = ParaphraseNode(
@@ -99,7 +97,6 @@ class ConsultantGraph:
             classifier_router.mapping,
         )        
 
-        # graph.add_edge("answer", END)
         graph.add_edge("retriever", END)
         graph.add_edge("no_info", END)
 
@@ -124,7 +121,7 @@ class ConsultantGraph:
 
     def chat(self, content):
         while True:
-            # self._print_message()
+
             query = input("user: ")
             if query == "q":
                 break

@@ -13,6 +13,7 @@ from qdrant_client import QdrantClient, models
 
 from agent.utils import EmbedModelType
 
+from agent.utils import EmbedModelType
 from fastembed.sparse.bm25 import Bm25
 from fastembed.late_interaction import LateInteractionTextEmbedding
 
@@ -28,14 +29,13 @@ class Retriever:
 
         self.dataset_dir = dataset_dir
         self._device = 0 if (device is None and is_available()) else device
-      
         self._client = self._setup_database(localhost=localhost, port=port)    
     
     def _setup_database(self, localhost: str, port: int):        
-        if not requests.get(f'http://{localhost}:{port}'):
+        if not requests.get(f'http://localhost:6333'):
             raise Exception(f'Qdrant server is not running at http://{localhost}:{port}')
             
-        client = QdrantClient(location=localhost, port=port)
+        client = QdrantClient(location=localhost, port=6333)
 
         return client
     
@@ -65,13 +65,11 @@ class Retriever:
     def encode(self, text: Union[List[str], str], model_type: EmbedModelType=None):
         try:
             if model_type == EmbedModelType.DEEPVK_USER:
-                       
                 embeddings = SentenceTransformer(
                     EmbedModelType.DEEPVK_USER.value,
                     device=self._device
                 ).encode(text, normalize_embeddings=True)
             elif model_type == EmbedModelType.MiniLM:
-                           
                 embeddings = SentenceTransformer(
                     EmbedModelType.MiniLM.value,
                     device=self._device
@@ -88,7 +86,6 @@ class Retriever:
                 raise ValueError('Модель не выбрана')
 
             return embeddings
-    
         except Exception as err:
             raise Exception(f'Ошибка при кодировании текста: {err}')
     
@@ -96,16 +93,18 @@ class Retriever:
     def search(
             self,
             query: str,
+            model_type: EmbedModelType,
             collection_name: str,
             topk: int = 10,
             filter_options: dict = None,
             score_threshold: float = 0.0
         ):
         try:
-            embedding = self.encode(query)
+            embedding = self.encode(query, model_type=model_type)
             results = self._client.search(
-                collection_name,
-                embedding,
+                collection_name=collection_name,
+                query_vector=(model_type.value, embedding),
+                with_payload=True,
                 limit=topk,
                 query_filter=models.Filter(
                     must=[
@@ -232,29 +231,29 @@ class Retriever:
                 raise Exception(f'Ошибка при загрузке в базу: {error}')
 
 
-    def upload_database(self, collection_name: str):
-        """ Загружаем данные в database """
+    # def upload_database(self, collection_name: str):
+    #     """ Загружаем данные в database """
 
-        try:
-            files = self.get_all_files()
-            df = self.combined_df(files)
+    #     try:
+    #         files = self.get_all_files()
+    #         df = self.combined_df(files)
 
-            embeddings = self.encode(df["content"].to_list())
+    #         embeddings = self.encode(df["content"].to_list())
 
-            for idx, row in df.iterrows():
-                self._client.upsert(
-                    collection_name=collection_name,
-                    points=[
-                        models.PointStruct(
-                            id=idx,
-                            vector=embeddings[idx],
-                            payload={
-                                "content": row["content"],
-                                "category": row["category"],
-                                'catalog': row["catalog"]
-                            }
-                        )
-                    ]
-                )
-        except Exception as error:
-            raise Exception(f'Ошибка при загрузке в базу: {error}')
+    #         for idx, row in df.iterrows():
+    #             self._client.upsert(
+    #                 collection_name=collection_name,
+    #                 points=[
+    #                     models.PointStruct(
+    #                         id=idx,
+    #                         vector=embeddings[idx],
+    #                         payload={
+    #                             "content": row["content"],
+    #                             "category": row["category"],
+    #                             'catalog': row["catalog"]
+    #                         }
+    #                     )
+    #                 ]
+    #             )
+    #     except Exception as error:
+    #         raise Exception(f'Ошибка при загрузке в базу: {error}')
