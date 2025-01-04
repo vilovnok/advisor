@@ -5,8 +5,10 @@ from agent.nodes import (
     ParaphraseNode,    
     ClassifierRouter,
     RetrieverNode,
-    RetrieverRouter,
+    CorrectNode,
     AnswerNode,
+    ProfileNode,
+    ClassifierInputTextNode,
     NoInfoNode,
     ClassifierNode
 )
@@ -45,6 +47,12 @@ class ConsultantGraph:
             llm=self.llm,
             show_logs=self.show_logs
         )
+        classifier_input_text_node = ClassifierInputTextNode(
+            name="Classifier Input Text Node",
+            description=ClassifierInputTextNode.__doc__,
+            llm=self.llm,
+            show_logs=self.show_logs
+        )        
         classifier_node = ClassifierNode(
             name="Classifier Node",
             description=ClassifierNode.__doc__,
@@ -55,56 +63,73 @@ class ConsultantGraph:
             name="Classifier Router",
             description=ClassifierRouter.__doc__,
             mapping={
-                "retriever": "retriever",
+                "profile": "profile",
                 "no_info": "no_info",
-                "end": END,
             },
             show_logs=self.show_logs
         )        
-        no_info_node = NoInfoNode(
-            name="NoInfoNode",
-            description=NoInfoNode.__doc__,
-        )
+        profile_node = ProfileNode(
+            name="Profile Node",
+            description=ProfileNode.__doc__,
+            llm=self.llm,
+            show_logs=self.show_logs
+        )        
+        correct_node = CorrectNode(
+            name="Correct Node",
+            description=CorrectNode.__doc__,
+            llm=self.llm,
+            show_logs=self.show_logs
+        )        
         retriever_node = RetrieverNode(
-            name="RetrieverNode",
+            name="Retriever Node",
             description=RetrieverNode.__doc__,
             retriever=retriever,
             show_logs=self.show_logs,
         )
-        # retriever_router = RetrieverRouter(
-        #     name="RetrieverRouter",
-        #     description=RetrieverRouter.__doc__,
-        #     mapping={
-        #         "answer": "answer",
-        #         "no_info": "no_info"
-        #     },
-        #     show_logs=self.show_logs
-        # )
+        answer_node = AnswerNode(
+            name="Answer Node",
+            description=AnswerNode.__doc__,
+            llm=self.llm,
+            show_logs=self.show_logs
+        )       
+        no_info_node = NoInfoNode(
+            name="NoInfoNode",
+            description=NoInfoNode.__doc__,
+        )
 
         # Add nodes to graph
         graph.add_node("paraphrase", paraphrase_node.invoke)
+        # graph.add_node("cls_input_text", classifier_input_text_node.invoke)
         graph.add_node("classifier", classifier_node.invoke)
-        graph.add_node("no_info", no_info_node.invoke)
+        graph.add_node("profile", profile_node.invoke)
         graph.add_node("retriever", retriever_node.invoke)
-        # graph.add_node("answer", AnswerNode.invoke)
+        graph.add_node("no_info", no_info_node.invoke)
+        graph.add_node("correct", correct_node.invoke)
+        graph.add_node("answer", answer_node.invoke)
 
         # Set up graph relations
         graph.add_edge(START, "paraphrase")
+        # graph.add_edge("paraphrase", "cls_input_text")
+        # graph.add_edge("cls_input_text", END)
         graph.add_edge("paraphrase", "classifier")
         graph.add_conditional_edges(
             "classifier",
             classifier_router.invoke,
             classifier_router.mapping,
-        )        
+        )
+        graph.add_edge("profile","correct")
+        graph.add_edge("correct","retriever")
+        graph.add_edge("retriever", 'answer')
 
-        graph.add_edge("retriever", END)
+        graph.add_edge("answer",  END)
         graph.add_edge("no_info", END)
 
         return graph.compile()
     
 
-    def invoke(self, query: str):
-        self.history.append(HumanMessage(content=query))        
+    def invoke(self, query: str, catalog_name: str):
+        self.history.append(HumanMessage(content=query)) 
+        self.catalog_name = catalog_name       
         answer = self.graph.invoke(
             {"history": self.history,
              "catalog_name": self.catalog_name,
@@ -120,12 +145,14 @@ class ConsultantGraph:
 
 
     def chat(self, content):
+        catalog_name = 'cv'
         while True:
 
             query = input("user: ")
             if query == "q":
                 break
-            self.invoke(content)
+
+            self.invoke(content, catalog_name=catalog_name)
             # self._print_message()
             # print("HISTORY OF MESSAGES")
             # print(self.history)

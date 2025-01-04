@@ -18,7 +18,7 @@ class ClassifierRouter(_BaseRouter):
         super().__init__(name, description, mapping)
         self.show_logs = show_logs
 
-    def invoke(self, state: State) -> Literal["retriever", "no_info", "end"]:
+    def invoke(self, state: State) -> Literal["profile", "no_info"]:
         catalog_name = state.catalog_name
         category_name = state.category_name
 
@@ -37,6 +37,6 @@ class ClassifierRouter(_BaseRouter):
             ):  
                 return "no_info"
             else:
-                return "retriever"
+                return "profile"
         else:
-            return "end"
+            return "no_info"

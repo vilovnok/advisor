@@ -1,14 +1,15 @@
 from typing import List
 
 from langchain_core.output_parsers import StrOutputParser, BaseOutputParser
+from langchain_core.messages import AIMessage
 
-from .prompt import CLASSIFIER_NODE_PROMPT
+from .prompt import CORRECT_NODE_PROMPT
 from agent.nodes._base import _BaseNode
 from agent.llms._base import _BaseLLM
 from agent.graphs.state import State
 
 
-class ClassifierNode(_BaseNode):
+class CorrectNode(_BaseNode):
     """
     Classifier Node to classify input query (user input) in categories.
     """
@@ -17,7 +18,7 @@ class ClassifierNode(_BaseNode):
             name: str,
             description: str,
             llm: _BaseLLM,
-            prompt: str = CLASSIFIER_NODE_PROMPT,
+            prompt: str = CORRECT_NODE_PROMPT,
             output_parser: BaseOutputParser = StrOutputParser(),
             show_logs: bool = False
         ) -> None:
@@ -28,12 +29,12 @@ class ClassifierNode(_BaseNode):
         history = state.history
         content = history[-1].content
         
-        catalog_name = 'vac' if "cv" in content else 'vac'        
-        category_name = self.vllm.invoke(content=content)
+        profile = self.vllm.invoke(content=content)
+        state.history.append(AIMessage(content=profile.replace('```',"")))
 
         if self.show_logs:
             print(self.name)            
-            print(f"Model answer: \ncatalog: {catalog_name}\ncatalog: {category_name}")
+            print(f"Model answer: \n\n{profile}")
             print("----------------")        
 
-        return {"history": history, "catalog_name": catalog_name, 'category_name': category_name}
+        return {"history": history, "catalog_name": state.catalog_name, 'category_name': state.category_name}

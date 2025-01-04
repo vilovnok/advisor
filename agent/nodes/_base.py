@@ -64,3 +64,8 @@ class VLLMAdapter(ABC):
     def invoke(self, content: str):
         response = self.vllm_client.invoke(prompt=self.prompt, content=content)
         return response
+    
+    def answer(self, examples: str, target: str):
+        response = self.vllm_client.invoke(content=self.prompt.replace('{examples}', examples)
+                                    .replace('{target}', target), prompt='Ты бот который ранжирует examples по интсркуции.')
+        return response

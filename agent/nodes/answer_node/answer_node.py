@@ -1,15 +1,14 @@
+import re
 from typing import List
-
 from langchain_core.output_parsers import StrOutputParser, BaseOutputParser
-from langchain.evaluation import load_evaluator, EvaluatorType
 from langchain_core.messages import BaseMessage, AIMessage
-import pandas as pd
 
 from .prompt import ANSWER_NODE_PROMPT
 from agent.nodes._base import _BaseNode
 from agent.llms._base import _BaseLLM
 from agent.graphs.state import State
 
+from agent.nodes.answer_node.methods.calculate_skills import (calculate_similarity_score)
 
 class AnswerNode(_BaseNode):
     """
@@ -23,49 +22,37 @@ class AnswerNode(_BaseNode):
             prompt: str = ANSWER_NODE_PROMPT,
             output_parser: BaseOutputParser = StrOutputParser(),
             show_logs: bool = False,
-            save_online_metric: bool = False,
         ) -> None:
         super().__init__(name, description, llm, prompt, output_parser)
         self.show_logs = show_logs
-        self.save_online_metric = save_online_metric
-        if self.save_online_metric:
-            self.evaluator = load_evaluator("labeled_score_string", llm=llm.llm, normalize_by=10)
 
-    def get_data(self, history: List[BaseMessage]):
-        rag_answer = history[-1].content
-        result = {x['payload']['category']: x['payload']['content']
-                  for x in rag_answer}
-        # result = {"question": [x['payload']['question'] for x in rag_answer],
-        #           "correct_answer": [x['payload']['content'] for x in rag_answer]}
-        # result = pd.DataFrame(result).to_markdown()
 
-        # result = [f"{x['payload']['question']} - {x['payload']['content']}"
-        #           for x in rag_answer]
-        # return "\n".join(result)
-        return result
+    def rank_examples(self, history: List[BaseMessage]):
+        examples = history[-1].content
+        target = history[-2].content
+
+        blocks = re.split(r'\n\s*\n', examples.strip())
+        examples =  [block.strip() for block in blocks if block.strip()]
+
+        result = calculate_similarity_score(target, examples)
+        
+        # return "\n\nTarget:\n" + target.split('Ключевые навыки')[0] + "\n\n".join([res for res in result])
+        sorted_objs = sorted(result, key=result.get, reverse=True)
+        return sorted_objs
 
     def invoke(self, state: State):
         history = state.history
-        summary = self.get_summary(history)
-        data = self.get_data(history)
+        answer = self.rank_examples(history)
 
-        # answer = self.chain.invoke({"summary": summary, "data": data})
-
-        # if self.save_online_metric:
-        #     score = self.evaluator.evaluate_strings(
-        #         prediction=answer,
-        #         reference=data[next(iter(data))],
-        #         input=summary,
-        #     )["score"]
-        #     state.hallucination.append(score)
+        # answer = self.vllm.invoke(content=content)
 
         if self.show_logs:
             print(self.name)
-            print(f"User query: {summary}")
-            # print(f"Model answer: {answer}")
-            print(f"GET Data: {data}")
-            print("----------------")
+            print(f"User query: summary")
+            print(f"GET Data:")
 
-        history.append(AIMessage(name="HealthNode", content=None))
+            print(f'Answer: {answer}')
+
+            print("----------------")
 
         return {"history": history, "catalog_name": state.catalog_name, "hallucination": state.hallucination, "category_name": state.category_name}
