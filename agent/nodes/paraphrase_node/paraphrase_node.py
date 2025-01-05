@@ -1,5 +1,3 @@
-import json
-
 from langchain_core.output_parsers import StrOutputParser, BaseOutputParser
 from langchain_core.messages import HumanMessage, AIMessage, FunctionMessage
 
@@ -8,7 +6,6 @@ from agent.nodes._base import _BaseNode
 from agent.llms._base import _BaseLLM
 from agent.graphs.state import State
 from .methods.method import text_converter
-
 
 class ParaphraseNode(_BaseNode):
     """
@@ -40,7 +37,7 @@ class ParaphraseNode(_BaseNode):
 
         if self.show_logs:
             print(self.name)
-            print(f"Model answer: {answer}")
+            print(f"Model answer: \n{answer}")
             print("----------------")
 
         history.append(FunctionMessage(name="ParaphraseNode", content=answer))

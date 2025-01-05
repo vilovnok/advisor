@@ -1,0 +1,11 @@
+<div class="card-list-container">
+  <div class="card" *ngFor="let item of items; let i = index">
+    <div class="card-header">
+      <span class="card-number">{{ i + 1 }}</span>
+    </div>
+    <div class="card-body">
+      <p>{{ item.title }}</p>
+    </div>
+  </div>
+</div>
+<button (click)="goBack()" class="back-button">Вернуться</button>

@@ -1,25 +1,21 @@
+import requests
+from pathlib import Path
+from typing import List, Union
+
 import pandas as pd
 import tqdm
-import requests
+from datasets import Dataset
+from qdrant_client import QdrantClient, models
+from sentence_transformers import SentenceTransformer
 from torch.cuda import is_available
 
-from typing import List, Union
-from pathlib import Path
-
-from datasets import Dataset
-
-from sentence_transformers import SentenceTransformer
-from qdrant_client import QdrantClient, models
-
+from agent.database.mixin import Mixin
 from agent.utils import EmbedModelType
-
-from agent.utils import EmbedModelType
-from fastembed.sparse.bm25 import Bm25
 from fastembed.late_interaction import LateInteractionTextEmbedding
+from fastembed.sparse.bm25 import Bm25
 
 
-
-class Retriever:
+class Retriever(Mixin):
     def __init__(self, 
                  localhost: str='0.0.0.0',
                  port: int=6333,
@@ -184,7 +180,6 @@ class Retriever:
         
         return df_combined
     
-
     def upload_db(self, collection_name: str, batch_size: int=4):
         """ Загружаем данные в базу """
 
@@ -229,31 +224,3 @@ class Retriever:
                 )
             except Exception as error:
                 raise Exception(f'Ошибка при загрузке в базу: {error}')
-
-
-    # def upload_database(self, collection_name: str):
-    #     """ Загружаем данные в database """
-
-    #     try:
-    #         files = self.get_all_files()
-    #         df = self.combined_df(files)
-
-    #         embeddings = self.encode(df["content"].to_list())
-
-    #         for idx, row in df.iterrows():
-    #             self._client.upsert(
-    #                 collection_name=collection_name,
-    #                 points=[
-    #                     models.PointStruct(
-    #                         id=idx,
-    #                         vector=embeddings[idx],
-    #                         payload={
-    #                             "content": row["content"],
-    #                             "category": row["category"],
-    #                             'catalog': row["catalog"]
-    #                         }
-    #                     )
-    #                 ]
-    #             )
-    #     except Exception as error:
-    #         raise Exception(f'Ошибка при загрузке в базу: {error}')

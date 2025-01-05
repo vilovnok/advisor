@@ -1,4 +1,3 @@
-from typing import List
 from langchain_core.messages import AIMessage
 from langchain_core.output_parsers import StrOutputParser, BaseOutputParser
 
@@ -9,25 +8,44 @@ from agent.graphs.state import State
 from .prompt import PROFILE_NODE_PROMPT
 
 
-
-
 class ProfileNode(_BaseNode):
     """
-    Profile Node to create a profile.
+    Profile Node to create a user profile.
     """
+
     def __init__(
-            self,
-            name: str,
-            description: str,
-            llm: _BaseLLM,
-            prompt: str = PROFILE_NODE_PROMPT,
-            output_parser: BaseOutputParser = StrOutputParser(),
-            show_logs: bool = False
-        ) -> None:
+        self,
+        name: str,
+        description: str,
+        llm: _BaseLLM,
+        prompt: str = PROFILE_NODE_PROMPT,
+        output_parser: BaseOutputParser = StrOutputParser(),
+        show_logs: bool = False,
+    ) -> None:
+        """
+        Initialize the ProfileNode.
+
+        Args:
+            name (str): Name of the node.
+            description (str): Description of the node's purpose.
+            llm (_BaseLLM): Language model used for profile generation.
+            prompt (str): Prompt to guide the language model.
+            output_parser (BaseOutputParser): Parser for output formatting.
+            show_logs (bool): Flag to enable or disable logging.
+        """
         super().__init__(name, description, llm, prompt, output_parser)
         self.show_logs = show_logs
 
-    def invoke(self, state: State):
+    def invoke(self, state: State) -> dict:
+        """
+        Generate a profile based on the input query.
+
+        Args:
+            state (State): Current state of the workflow.
+
+        Returns:
+            dict: Updated state with the generated profile.
+        """
         history = state.history
         content = history[-1].content
 
@@ -35,8 +53,12 @@ class ProfileNode(_BaseNode):
         state.history.append(AIMessage(content=profile))
 
         if self.show_logs:
-            print(self.name)            
-            print(f"Model answer: \n\n{profile}")
-            print("----------------")        
+            print(self.name)
+            print(f"Model answer:\n\n{profile}")
+            print("----------------")
 
-        return {"history": history, "catalog_name": state.catalog_name, 'category_name': state.category_name}
+        return {
+            "history": history,
+            "catalog_name": state.catalog_name,
+            "category_name": state.category_name,
+        }

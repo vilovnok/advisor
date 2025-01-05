@@ -4,9 +4,10 @@ from langchain_core.messages import FunctionMessage
 from agent.database import Retriever
 from agent.nodes._base import _BaseNode
 from agent.llms._base import _BaseLLM
-from agent.graphs import State
+from agent.graphs.state import State
 
 from agent.utils import EmbedModelType
+
 
 class RetrieverNode(_BaseNode):
     """
@@ -35,9 +36,7 @@ class RetrieverNode(_BaseNode):
 
     def invoke(self, state: State):
         history = state.history
-        
         category_name = state.category_name        
-        # catalog_name = 'vac' if state.catalog_name == "cv" else 'cv'
     
         retrieved_info = self.retriever.search(
             query=history[-1].content,

@@ -1,0 +1,41 @@
+
+
+
+.toolbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    background-color: #1976d2;
+    color: white;
+    font-weight: 600;
+  }
+  
+  .toolbar img {
+    margin: 0 16px;
+    width: 40px; 
+    border-radius: 50%;
+  }
+  
+  .toolbar a {
+    display: flex;
+    align-items: center;
+  }
+  
+  .toolbar #github-logo {
+    height: 24px;
+    width: 24px;
+    margin-left: 16px;
+  }
+  
+  .toolbar a:hover {
+    opacity: 0.8;
+  }
+  
+  .toolbar .spacer {
+    flex: 1;
+  }
+  
