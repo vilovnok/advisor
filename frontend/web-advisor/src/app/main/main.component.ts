@@ -1,14 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ServiceMain } from '../service.main';
 import { Router } from '@angular/router';
-// import { NgToastService } from 'ng-angular-popup';
 
 @Component({
   selector: 'app-main',
   templateUrl: './main.component.html',
   styleUrls: ['./main.component.scss']
 })
-export class MainComponent {
+export class MainComponent implements OnInit {
   description = 'Советник готов советовать!';
 
   fileType = "";
@@ -16,10 +15,8 @@ export class MainComponent {
   isLoading: boolean = false;
 
 
-  constructor(private service: ServiceMain,
-    // private toaster: NgToastService,
-    private router: Router,
-  ) { }
+  constructor(private service: ServiceMain, private router: Router) { }
+  ngOnInit(): void {localStorage.clear();}
 
 
 

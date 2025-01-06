@@ -1,11 +1,16 @@
-<div class="card-list-container">
-  <div class="card" *ngFor="let item of items; let i = index">
-    <div class="card-header">
-      <span class="card-number">{{ i + 1 }}</span>
-    </div>
-    <div class="card-body">
-      <p>{{ item.title }}</p>
-    </div>
+<div class="block-list-container">
+  <div class="block" *ngFor="let item of items; let i = index" (click)="openDialog(item.value)">
+    <span class="block-number">{{ i + 1 }}</span>
+    <p class="block-text">{{ item.title }}</p>
   </div>
 </div>
-<button (click)="goBack()" class="back-button">Вернуться</button>
+
+<div class="dialog-overlay" *ngIf="isDialogOpen" (click)="closeDialog()">
+  <div class="dialog-content" (click)="$event.stopPropagation()">
+    <h3>Детали</h3>
+    <p>{{ dialogContent }}</p>
+    <button (click)="closeDialog()">Закрыть</button>
+  </div>
+</div>
+
+<button class="back-button" (click)="goBack()">Назад</button>
