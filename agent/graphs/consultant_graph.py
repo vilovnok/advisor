@@ -9,7 +9,8 @@ from agent.nodes import (
     AnswerNode,
     ProfileNode,
     NoInfoNode,
-    ClassifierNode
+    ClassifierNode,
+    ExtractNode,
 )
 
 from agent.database import Retriever
@@ -56,7 +57,7 @@ class ConsultantGraph:
             name="Classifier Router",
             description=ClassifierRouter.__doc__,
             mapping={
-                "profile": "profile",
+                "extract": "extract",
                 "no_info": "no_info",
             },
             show_logs=self.show_logs
@@ -91,26 +92,46 @@ class ConsultantGraph:
             description=NoInfoNode.__doc__,
         )
 
+
+        extract_node = ExtractNode(
+            name="Extract Node",
+            description=ExtractNode.__doc__,
+            llm=self.llm,
+            show_logs=self.show_logs
+        )        
+
         # Add nodes to graph
-        graph.add_node("paraphrase", paraphrase_node.invoke)
-        graph.add_node("classifier", classifier_node.invoke)
-        graph.add_node("profile", profile_node.invoke)
+        # graph.add_node("paraphrase", paraphrase_node.invoke)
+        # graph.add_node("classifier", classifier_node.invoke)
+        # graph.add_node("profile", profile_node.invoke)
         graph.add_node("retriever", retriever_node.invoke)
         graph.add_node("no_info", no_info_node.invoke)
-        graph.add_node("correct", correct_node.invoke)
+        # graph.add_node("correct", correct_node.invoke)
         graph.add_node("answer", answer_node.invoke)
 
+        graph.add_node("extract", extract_node.invoke)
+
         # Set up graph relations
-        graph.add_edge(START, "paraphrase")
-        graph.add_edge("paraphrase", "classifier")
+        graph.add_edge(START, "classifier_node")
         graph.add_conditional_edges(
-            "classifier",
+            "classifier_node",
             classifier_router.invoke,
             classifier_router.mapping,
         )
-        graph.add_edge("profile","correct")
-        graph.add_edge("correct","retriever")
-        graph.add_edge("retriever", 'answer')
+        graph.add_edge("extract", 'retriever')
+        graph.add_edge('retriever', "answer")
+
+
+        # graph.add_edge(START, "paraphrase")
+        # graph.add_edge("paraphrase", "classifier")
+        # graph.add_conditional_edges(
+        #     "classifier",
+        #     classifier_router.invoke,
+        #     classifier_router.mapping,
+        # )
+        # graph.add_edge("profile","correct")
+        # graph.add_edge("correct","retriever")
+        # graph.add_edge("retriever", 'answer')
 
         graph.add_edge("answer",  END)
         graph.add_edge("no_info", END)
@@ -142,7 +163,6 @@ class ConsultantGraph:
     def chat(self, content):
         catalog_name = 'cv'
         while True:
-
             query = input("user: ")
             if query == "q":
                 break

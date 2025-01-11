@@ -169,7 +169,6 @@ class ForgeDataset():
         vac_dataset = Dataset.from_dict(content['vac_content'])
 
         return cv_dataset, vac_dataset
-    
 
     def save_to_disk(self, dataset: Dataset, filename: str, swich: int='cv'):
         """ Сохраняем датасеты на диск """

@@ -10,3 +10,5 @@ from .answer_node.answer_node import AnswerNode
 
 from .profile_node.profile_node import ProfileNode
 from .correct_node.correct_node import CorrectNode
+
+from .extract_node.extract_node import ExtractNode

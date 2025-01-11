@@ -1,8 +1,8 @@
 import string
 
 
-def text_converter(question: str) -> str:
+def text_converter(content: str) -> str:
     punctuation = string.punctuation.replace('-', '')
-    question = question.lower().translate(str.maketrans(punctuation, ' ' * len(punctuation)))    
-    question_list = question.split()    
-    return " ".join(question_list)
+    content = content.lower().translate(str.maketrans(punctuation, ' ' * len(punctuation)))    
+    content_list = content.split()    
+    return " ".join(content_list)

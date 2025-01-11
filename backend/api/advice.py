@@ -1,6 +1,5 @@
 from fastapi import APIRouter, UploadFile, File, Form
 from ..services.advice import AdviceService
-from ..schemas.advice import AdviceSchemas
 
 router = APIRouter(
     prefix='/v1/advice',

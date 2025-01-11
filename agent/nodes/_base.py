@@ -17,7 +17,7 @@ class _BaseNode(ABC):
             name: str,
             description: str,
             llm: _BaseLLM,
-            prompt: str = "",
+            prompt: list[str] | str = "",
             output_parser: BaseOutputParser = StrOutputParser(),
         ) -> None:
         self.name = name
@@ -61,11 +61,12 @@ class VLLMAdapter(ABC):
     def _setupVLLM(self):            
         self.vllm_client = OpenAIClient(model_type=LlmModelType.QWEN)        
     
-    def invoke(self, content: str):
-        response = self.vllm_client.invoke(prompt=self.prompt, content=content)
+    def ChatCompletion(self, content: str):
+        response = self.vllm_client.ChatCompletion(prompt=self.prompt, content=content)
         return response
     
-    def answer(self, examples: str, target: str):
-        response = self.vllm_client.invoke(content=self.prompt.replace('{examples}', examples)
-                                    .replace('{target}', target), prompt='Ты бот который ранжирует examples по интсркуции.')
+    def Completion(self, content: str, prompt:str=None,):
+        if not prompt:
+            prompt = self.prompt
+        response = self.vllm_client.Completion(prompt=prompt, content=content)
         return response

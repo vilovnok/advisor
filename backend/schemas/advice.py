@@ -5,4 +5,3 @@ from typing import List, Optional
 class AdviceSchemas(BaseModel):
     file: UploadFile 
     fileType: str
-    # recommendations: Optional[List]=None
