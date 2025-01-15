@@ -28,7 +28,7 @@ class ClassifierRouter(_BaseRouter):
         super().__init__(name, description, mapping)
         self.show_logs = show_logs
 
-    def invoke(self, state: State) -> Literal["profile", "no_info"]:
+    def invoke(self, state: State) -> Literal["extract", "no_info"]:
         """
         Determine the next step based on the catalog and category names.
 
@@ -36,23 +36,25 @@ class ClassifierRouter(_BaseRouter):
             state (State): Current state of the workflow.
 
         Returns:
-            Literal["profile", "no_info"]: Determines whether to return "profile" or "no_info".
+            Literal["extract", "no_info"]: Determines whether to return "profile" or "no_info".
         """
-        catalog_name = state.catalog_name
+        
+        similary_name = state.similary_name
+        activity_name = state.activity_name
         category_name = state.category_name
 
         if self.show_logs:
             print(self.name)
-            print(f"Catalog name: {catalog_name}")
             print(f"Category name: {category_name}")
+            print(f"Activity name: {activity_name}")
             print("----------------")
 
-        if catalog_name and category_name:
-            if catalog_name not in ("cv", "vac"):
+        if similary_name:            
+            if category_name not in ("resume", "vacancy"):
                 return "no_info"
-            elif category_name not in ("devops", "frontend", "backend"):
+            elif activity_name not in ("devops", "frontend", "backend"):
                 return "no_info"
             else:
-                return "profile"
+                return "extract"
         else:
             return "no_info"

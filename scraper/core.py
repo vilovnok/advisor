@@ -1,11 +1,25 @@
-import re
 import logging
+import re
+
 import requests
-import fake_useragent
-from tqdm import tqdm
 from bs4 import BeautifulSoup
+from tqdm import tqdm
+import fake_useragent
 
 from .worker import DataCraft
+from agent.utils import LlmModelType, conv_to_json
+from agent.vllm_server.openai_client import OpenAIClient
+from agent.vllm_server.utils import api_base, openai_key
+from .prompt import (
+    PREP_TEXT_PROMPT,
+    SUMM_TEXT_PROMPT,
+    EXTRACT_LANGUADE_PROMPT,
+    CORRECT_LANGUAGE_PROMPT,
+    EXTRACT_EDUCATION_PROMPT,
+    CLS_EDUCATION_PROMPT,
+    CORRECT_EDUCATION_PROMPT,
+)
+
 
 
 ####################################################################
@@ -16,18 +30,17 @@ class ScrapMaster:
     """ Парсер для вакансий и CV """
 
     def __init__(self, 
-                 api_key: str=None, 
-                 model: str=None, 
-                 area: int=None, 
-                 topic: str=None
+                api_key: str=None, 
+                model: str=None, 
+                area: int=None, 
+                topic: str=None
         ):
         
         self.area = area
         self.topic = topic
-
-        self.client = DataCraft(
-            api_key=api_key,
-            model=model)
+        
+        self.openai = OpenAIClient(api_key=openai_key, api_base=api_base, model_type=LlmModelType.QWEN)
+        self.client = DataCraft(api_key=api_key, model=model)
 
 
     def _get_count_page_cv(self):
@@ -92,21 +105,21 @@ class ScrapMaster:
         """ Выделяет график работы. """
         return self.client.extractInfo(content, task_type="classifier-schedule")
     
-    def classifier_edu_cv(self, content):
-        """ Выделяет образование. """
-        return self.client.extractInfo(content, task_type="classifier-edu")
+    # def classifier_edu_cv(self, content):
+    #     """ Выделяет образование. """
+    #     return self.client.extractInfo(content, task_type="classifier-edu")
 ################################################################
 
 
 
-    def get_user_cv(self, link=None):
+    def get_user_cv(self, url):
         """ Получаем CV кандидата """
 
-        if not link:
+        if not url:
             raise ValueError('Переменная link не была передана. Пожалуйста, добавьте ссылку.')
 
         ua = fake_useragent.UserAgent()
-        data = requests.get(url=link, headers={"user-agent": ua.random})
+        data = requests.get(url=url, headers={"user-agent": ua.random})
         soup = BeautifulSoup(data.content, "lxml")
 
         try:
@@ -135,17 +148,20 @@ class ScrapMaster:
 
             employment = self.classifier_employment_cv(employment)  
             schedule = self.classifier_schedule_cv(schedule)
-        except:
-            employment, schedule = '-', '-'       
+        except:        
+            employment, schedule = 'полная занятость', 'полный день'       
         try:
             language = ", ".join([lang.get_text(separator=' ', strip=True) for lang in soup.find_all(attrs={"data-qa": "resume-block-language-item"})])
         except:
-            language = '-'
+            language = 'Русский - родный'
         try:
             education = ", ".join([edu.get_text(separator=' ', strip=True) for edu in soup.find_all(attrs={"data-qa": "resume-block-education"})])
-            education = self.classifier_edu_cv(education)
+            education = self.openai.Completion(prompt=CLS_EDUCATION_PROMPT, content=education)
+            education = self.openai.Completion(prompt=CORRECT_EDUCATION_PROMPT, content=education)
+            education = conv_to_json(education)
+            education = education['edu']            
         except:
-            education = '-'
+            education = 'Образование не указано'
         try:
             location = ", ".join([loc.get_text(separator=' ', strip=True).replace("\xa0", " ") for loc in soup.find_all(attrs={"data-sentry-source-file": "ResumePersonalLocation.jsx"})])            
         except:
@@ -157,7 +173,7 @@ class ScrapMaster:
             description = self.summary_cv(description)            
         except:
             raise ValueError('Invalid value')
-
+        
         resume = {
             "name": name,                                
             "experience": experience,
@@ -169,6 +185,7 @@ class ScrapMaster:
             "language": language,
             "location": location,
             "education": education,
+            "url": url
         }
         return resume        
         
@@ -202,7 +219,7 @@ class ScrapMaster:
                     f.write(f"График работы: {resume['schedule']}\n")
                     f.write(f"Знание языков: {resume['language']}\n")
                     f.write(f"Образование: {resume['education']}\n")
-                    # f.write(f"Местоположение: {resume['location']}\n")
+                    f.write(f"url: {resume['url']}\n")
                     f.write("\n" + "-" * 50 + "\n\n")
 
             logging.basicConfig(level=logging.INFO, filemode="w",format="%(asctime)s %(levelname)s: %(message)s")
@@ -242,7 +259,7 @@ class ScrapMaster:
         """ Получаем ссылки на вакансии """
         
         all_data, page = [], 0
-        while True:              
+        while True:           
             n_obj = self.get_vacancies(page=page)            
             if len(n_obj) == 0:
                 break        
@@ -254,7 +271,6 @@ class ScrapMaster:
             page+=1            
             all_data.extend(n_obj)
         return list(set(all_data))
-    
 
     def prep_skills(self, skills):
         """ Подготовить строку для скилов """
@@ -268,20 +284,20 @@ class ScrapMaster:
 
         return sent
     
-    def cleaner_vacancy(self, description):
-        """ Очищает не важную информацию в вакансии """
+    # def cleaner_vacancy(self, description):
+    #     """ Очищает не важную информацию в вакансии """
 
-        if not description:
-            raise ValueError('переменная description не была передана. Пожалуйста, добавьте описание.')
-        try:
-            reponse = self.client.extractInfo(description, "extract-vacancy")
-            return reponse.replace("\n", ". ")
-        except Exception as error:
-            raise ValueError(f"Что-то не так на этапе очистки описания Vacany:\n{error}")
+    #     if not description:
+    #         raise ValueError('переменная description не была передана. Пожалуйста, добавьте описание.')
+    #     try:
+    #         reponse = self.client.extractInfo(description, "extract-vacancy")
+    #         return reponse.replace("\n", ". ")
+    #     except Exception as error:
+    #         raise ValueError(f"Что-то не так на этапе очистки описания Vacany:\n{error}")
 
 
 
-    def prep_description(self, description):
+    def extract_vacancy(self, description):
         """ Подготовить строку для описания описание """
 
         if not description:
@@ -289,15 +305,37 @@ class ScrapMaster:
         soup = BeautifulSoup(description, 'html.parser')
         text = soup.get_text(separator=' ')
         cleaned_text = re.sub(r'[\u200b\u200c\u200d\u2060\ufeff]', ' ', text)
-        description = self.cleaner_vacancy(cleaned_text)
-        return description
+        
+        try:
+            description = self.openai.Completion(prompt=PREP_TEXT_PROMPT, content=cleaned_text)
+            description = self.openai.Completion(prompt=SUMM_TEXT_PROMPT, content=description)
+        except:
+            raise ValueError('Invalid value')
+        
+        try:
+            education = self.openai.Completion(prompt=EXTRACT_EDUCATION_PROMPT, content=cleaned_text)
+            education = self.openai.Completion(prompt=CLS_EDUCATION_PROMPT, content=education)
+            education = self.openai.Completion(prompt=CORRECT_EDUCATION_PROMPT, content=education)
+            education = conv_to_json(content=education)
+            education = education['edu']
+        except Exception as err:
+            education = 'Образование не указано'
+
+        try:
+            language = self.openai.Completion(prompt=EXTRACT_LANGUADE_PROMPT, content=cleaned_text)
+            language = self.openai.Completion(prompt=CORRECT_LANGUAGE_PROMPT, content=language)
+            language = conv_to_json(content=language)
+            language = ", ".join(language['language'])
+        except:
+            language = 'Русский - родной'
+                
+        return description, language, education
 
 
-    def get_info_vacancy(self, link):
+    def get_info_vacancy(self, url):
         """ Получаем полную информацию о вакансии """
-
         try:  
-            response = requests.get(link)
+            response = requests.get(url)
             info_vacancy = response.json()
         except:
             raise ValueError('Invalid value')
@@ -317,18 +355,22 @@ class ScrapMaster:
             schedule = info_vacancy['schedule']['name']
             schedule = self.classifier_schedule_cv(schedule)
         except:
-            schedule = '-'
+            schedule = 'полный день'
         try:
             employment = info_vacancy['employment']['name']
             employment = self.classifier_employment_cv(employment)
         except:
-            employment = '-'            
+            employment = 'полная занятость'            
         try:
             description = info_vacancy['description']
         except:
             raise ValueError('Invalid value')
         try:
             skills = info_vacancy['key_skills']
+        except:
+            raise ValueError('Invalid value')
+        try:
+            url = info_vacancy['alternate_url']
         except:
             raise ValueError('Invalid value')
         # try:            
@@ -338,14 +380,14 @@ class ScrapMaster:
         #     raise ValueError('Invalid value')
 
         full_info = {'name': name,
-                     'experience': experience,
-                     'description': description,
-                     'address': address,
-                     'skills': skills,
-                     'employment': employment,
-                     'schedule': schedule,                     
-                    #  'professional_roles': professional_roles
-                     }
+                    'experience': experience,
+                    'description': description,
+                    'address': address,
+                    'skills': skills,
+                    'employment': employment,
+                    'schedule': schedule,                     
+                    'url': url
+                    }
 
         return full_info 
     
@@ -365,10 +407,9 @@ class ScrapMaster:
                     
                     skills = vac_info["skills"]
                     title = self.prep_skills(skills=skills)
-                    description = self.client.extractInfo(vac_info["description"], task_type='extract-content')
-                    description = self.prep_description(description)
-                    description, language, education = description.split("$")                                                            
-                    
+                    vacancy = self.extract_vacancy(vac_info["description"])
+                    description, language, education = vacancy
+
                     f.write(f'Вакансия: {vac_info["name"]}\n')
                     f.write(f'Опыт работы: {vac_info["experience"]}\n')
                     f.write(f'Описание: {description}\n')
@@ -377,7 +418,7 @@ class ScrapMaster:
                     f.write(f'График работы: {vac_info["schedule"]}\n')
                     f.write(f"Знание языков: {language}\n")
                     f.write(f"Образование: {education}\n")
-                    # f.write(f"Местоположение: {vac_info['address']}\n")
+                    f.write(f"url: {vac_info['url']}\n")
                     f.write('\n' + '-' * 50 + '\n\n') 
                 except Exception as error:
                     continue

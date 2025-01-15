@@ -3,16 +3,18 @@ import pandas as pd
 from datetime import datetime
 from typing import List, Union
 from datasets import Dataset
+from scraper.utils import Mixin
 
-class ForgeDataset():
+
+class ForgeDataset(Mixin):
     """ Формируем dataset """
     
     def __init__(self, 
-                 data_dir: str='data', 
-                 dataset_dir: str='./dataset',
-                 api_key: str=None, 
-                 model: str=None, 
-                 topic: str=None
+                data_dir: str='data', 
+                dataset_dir: str='./dataset',
+                api_key: str=None, 
+                model: str=None, 
+                topic: str=None
         ):
         
         self.dataset_dir = dataset_dir
@@ -150,14 +152,14 @@ class ForgeDataset():
             extract = self.cluster_content_by_position(content=content, pertain='cv')            
             cv_content = self.update_clasters(claster=extract['clasters'], content=cv_content)
         
-        cv_content = self.filter_content(cv_content, limit)
+        # cv_content = self.filter_content(cv_content, limit)
         
         for document in documents['vac']:
             content = self.read_document(document)            
             extract = self.cluster_content_by_position(content=content, pertain='vac')            
             vac_content = self.update_clasters(claster=extract['clasters'], content=vac_content)
         
-        vac_content = self.filter_content(vac_content, limit)
+        # vac_content = self.filter_content(vac_content, limit)
         
         return {'cv_content': cv_content, 'vac_content': vac_content}
 
@@ -190,6 +192,9 @@ class ForgeDataset():
             rows.extend({"catalog": swich, "category": category, "content": content} for content in contents)
 
         df = pd.DataFrame(rows)
+
+        df['url'], df['content'] = zip(*df['content'].apply(self.extract_and_remove_url))
+        
         df.to_csv(file_path, index=False, encoding="utf-8")
         print(f"CSV файл успешно создан: {file_path}")
 
@@ -198,11 +203,16 @@ class ForgeDataset():
 
 forge = ForgeDataset()
 
+data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'dataset')
+if not os.path.exists(data_dir):
+    os.makedirs(data_dir)
+    print(f"Created directory: {data_dir}")
+
+
 current_date = datetime.now()
 formatted_date = current_date.strftime("%Y-%m-%d")
 
-# создаем контент
-documents = forge.run(limit=10)
+documents = forge.run(limit=20)
 
 forge.save_to_csv(documents['vac_content'], f'{formatted_date}', 'vac')
 forge.save_to_csv(documents['cv_content'], f'{formatted_date}', 'cv')

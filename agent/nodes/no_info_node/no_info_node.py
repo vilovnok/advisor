@@ -35,4 +35,4 @@ class NoInfoNode(_BaseNode):
             content="Извините, по вашему запросу нет информации."
         ))
 
-        return {"history": history, "catalog_name": state.catalog_name, 'category_name': state.category_name}
+        return {"history": history, "activity_name": state.activity_name, 'category_name': state.category_name}

@@ -1,6 +1,6 @@
 from langchain_core.output_parsers import StrOutputParser, BaseOutputParser
 
-from .prompt import CLASSIFIER_NODE_PROMPT
+from .prompt import CLASSIFIER_CATALOG_NODE_PROMPT 
 from agent.nodes._base import _BaseNode
 from agent.llms._base import _BaseLLM
 from agent.graphs.state import State
@@ -16,7 +16,7 @@ class ClassifierNode(_BaseNode):
         name: str,
         description: str,
         llm: _BaseLLM,
-        prompt: str = CLASSIFIER_NODE_PROMPT,
+        prompt: str = CLASSIFIER_CATALOG_NODE_PROMPT,
         output_parser: BaseOutputParser = StrOutputParser(),
         show_logs: bool = False,
     ) -> None:
@@ -46,17 +46,19 @@ class ClassifierNode(_BaseNode):
         """
         history = state.history
         content = history[-1].content
+        similary_name = self.vllm.Completion(content=content, prompt=CLASSIFIER_CATALOG_NODE_PROMPT)
 
-        catalog_name = 'vac' if "cv" in content else 'vac'
-        category_name = self.vllm.invoke(content=content)
+        if 'other' in similary_name:
+            similary_name = None
 
         if self.show_logs:
             print(self.name)
-            print(f"Model answer: \ncatalog: {catalog_name}\ncategory: {category_name}")
+            print(f"Model answer: \nsimilary_name: {similary_name}")
             print("----------------")
 
         return {
             "history": history,
-            "catalog_name": catalog_name,
-            "category_name": category_name,
+            "activity_name": state.activity_name,
+            "category_name": state.category_name,            
+            "similary_name": similary_name,            
         }

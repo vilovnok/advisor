@@ -12,7 +12,7 @@ from .prompt import (
     EXTRACT_DESCRIPTION_PROMPT
 )
 
-from .method import conv_to_json, generate_summary
+from agent.utils import conv_to_json, generate_summary
 
 
 class ExtractNode(_BaseNode):
@@ -41,39 +41,47 @@ class ExtractNode(_BaseNode):
         education = self.vllm.Completion(content=education, prompt=CLS_EDUCATION_PROMPT)
         education = self.vllm.Completion(content=education, prompt=CORRECT_EDUCATION_PROMPT)
         education = conv_to_json(education)
+        education = education['edu']
 
         language = self.vllm.Completion(content=content, prompt=EXTRACT_LANGUADE_PROMPT)
         language = self.vllm.Completion(content=language, prompt=CORRECT_LANGUAGE_PROMPT)
         language = conv_to_json(language)
+        language = language['language']
+        language = ", ".join(language)
 
         employment = self.vllm.Completion(content=content, prompt=EXTRACT_EMPLOYMENT_PROMPT)
         employment = conv_to_json(employment)
+        employment = employment['emp']
+        employment = ", ".join(employment)
 
         schedule = self.vllm.Completion(content=content, prompt=EXTRACT_SCHEDULE_PROMPT)
         schedule = self.vllm.Completion(content=schedule, prompt=CORRECT_SCHEDULE_PROMPT)
         schedule = conv_to_json(schedule)
+        schedule = schedule['she']
+        schedule = ", ".join(schedule)
 
         skills = self.vllm.Completion(content=content, prompt=EXTRACT_SKILLS_PROMPT)
         skills = self.vllm.Completion(content=content, prompt=CORRECT_SKILLS_PROMPT)
         skills = conv_to_json(skills)
+        skills = skills['technical_skills'] + skills['soft_skills']
+        skills = ", ".join(skills)
 
         experience = self.vllm.Completion(content=content, prompt=EXTRACT_EXPERIENCE_PROMPT)
         experience = self.vllm.Completion(content=experience, prompt=CORRECT_EXPERIENCE_PROMPT)
         experience = conv_to_json(experience)
+        experience = experience['work_experience']
 
         description = self.vllm.Completion(content=content, prompt=EXTRACT_DESCRIPTION_PROMPT)
-        
+
         data = {
-            "title": "Data Analyst",
-            "experience": experience['experience'],
+            "experience": experience,
             "description": description,
             "skills": skills,
-            "employment": employment['emp'],
-            "schedule": schedule['she'],
-            "languages": language,
+            "employment": employment,
+            "schedule": schedule,
+            "language": language,
             "education": education
         }
-
         profile = generate_summary(data=data)
         state.history.append(AIMessage(content=profile))
         
@@ -91,6 +99,6 @@ class ExtractNode(_BaseNode):
 
         return {
             "history": history,
-            "catalog_name": state.catalog_name,
+            "activity_name": state.activity_name,
             "category_name": state.category_name,
         }

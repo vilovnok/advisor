@@ -36,12 +36,13 @@ class RetrieverNode(_BaseNode):
 
     def invoke(self, state: State):
         history = state.history
-        category_name = state.category_name        
+        activity_name = state.activity_name  
+        category_name = 'cv' if state.category_name=='cv' else 'vac'
     
         retrieved_info = self.retriever.search(
             query=history[-1].content,
             collection_name=RetrieverNode.DATABASE_COLLECTION_NAME,
-            filter_options={"catalog": state.catalog_name, 'category': category_name},
+            filter_options={"catalog": category_name, 'category': activity_name},
             topk=self.topK,
             score_threshold=self.score_threshold, 
             model_type=EmbedModelType.DEEPVK_USER
@@ -50,13 +51,13 @@ class RetrieverNode(_BaseNode):
         examples = "\n\n".join([f'id: {item.id}\n{item.payload["content"]}' for item in retrieved_info])
         if self.show_logs:
             print(self.name)          
-            print(f'catalog_name: {state.catalog_name}\ncategory_name: {category_name}')
-            # for i in [item.payload["content"] for item in retrieved_info]:
-            #     print('\n\n')
-            #     print(i)
-            #     print('\n\n')
+            print(f'activity_name: {state.activity_name}\ncategory_name: {category_name}')
+            for i in [item.payload["content"] for item in retrieved_info]:
+                print('\n\n')
+                print(i)
+                print('\n\n')
             print("----------------")
 
         history.append(FunctionMessage(name="RetrieverNode", content=examples))
 
-        return {"history": history, "catalog_name": state.catalog_name, "category_name": category_name}
+        return {"history": history, "activity_name": state.activity_name, "category_name": category_name}

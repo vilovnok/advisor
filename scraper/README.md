@@ -1,5 +1,4 @@
 # Parser
-You should write a topic for your vacancy and CV.
 ## Run to get the data
 ```bash
 poetry run python scraper/main.py --topic "Devops разработчик" --area 1  --limit_page 4 --limit_objects 100

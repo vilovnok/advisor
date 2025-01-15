@@ -12,26 +12,29 @@
     <div style="height: 40px;"></div>
 
     <h2>Начать</h2>
-    <p>Выберите, к какому типу относится ваш файл: резюме или вакансия.</p>
+    <p>Выберите, к какой категории относится ваш файл: резюме или вакансия.</p>
+    <p>Укажите тип деятельности вашего файла.</p>
     <p>После выбора, загрузите файл.</p>
 
     <div style="height: 20px;"></div>
-    <div class="card-container">
-        <a class="card" target="_blank" rel="noopener" (click)="setFileType('резюме')"
-            [ngClass]="{'active': isActive('резюме')}">
-            <svg class="material-icons" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                <path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z" />
-            </svg>
-            <span>Резюме</span>
-        </a>
-        <a class="card" target="_blank" rel="noopener" (click)="setFileType('вакансия')"
-            [ngClass]="{'active': isActive('вакансия')}">
-            <svg class="material-icons" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                <path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z" />
-            </svg>
-            <span>Вакансия</span>
-        </a>
+    <div class="select-container">
+        <div class="select-field">
+            <label for="category">Категория</label>
+            <select id="category" [(ngModel)]="category" class="styled-select">
+                <option value="" disabled selected>Выберите категорию</option>
+                <option *ngFor="let option of categoryOptions" [value]="option">{{ option }}</option>
+            </select>
+        </div>
+        <div class="select-field">
+            <label for="activity">Деятельность</label>
+            <select id="activity" [(ngModel)]="activity" class="styled-select">
+                <option value="" disabled selected>Выберите деятельность</option>
+                <option *ngFor="let option of activitysOptions" [value]="option">{{ option }}</option>
+            </select>
+        </div>
     </div>
+
+
 
     <div style="height: 10px;"></div>
     <label for="file-upload" class="file-upload-label">
@@ -41,7 +44,7 @@
         accept=".pdf, .docx, .txt">
     <button 
         (click)="UploadFile()" 
-        [disabled]="!selectedFile || !fileType" 
+        [disabled]="!selectedFile || !category || !activity" 
         class="upload-btn">
         Отправить
     </button>

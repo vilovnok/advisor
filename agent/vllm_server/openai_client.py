@@ -72,3 +72,21 @@ class OpenAIClient(PromptSanitizer):
             print(f"OpenAI error: {e}")        
         except Exception as e:
             print(f"Other error occurred: {e}")
+
+    def invoke(self, prompt: str, content:str):
+        try:
+            
+            response = openai.ChatCompletion.create(
+                model=self.model,
+                temperature=0.2,
+                frequency_penalty=0.2,
+                max_tokens=784,
+                top_p=0.8,
+                messages=[
+                    {"role": "system", "content": f'{prompt}'},
+                    {"role": "user", "content": f'{content}'}
+                    ]
+                )
+            return response["choices"][0]["message"]["content"]
+        except Exception as error:
+            print(f"Ошибка при вызове OpenAI:\n{error}")

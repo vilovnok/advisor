@@ -90,7 +90,7 @@ class AnswerNode(_BaseNode):
 
         return {
             "history": history,
-            "catalog_name": state.catalog_name,
+            "activity_name": state.activity_name,
             "hallucination": state.hallucination,
             "category_name": state.category_name,
         }

@@ -14,6 +14,12 @@ export class MainComponent implements OnInit {
   selectedFile: File | null = null;
   isLoading: boolean = false;
 
+  activity: string = ''; 
+  category: string = '';
+
+  activitysOptions: string[] = ['frontend', 'devops', 'backend'];
+  categoryOptions: string[] = ['Resume', 'Vacancy'];
+
 
   constructor(private service: ServiceMain, private router: Router) { }
   ngOnInit(): void {localStorage.clear();}
@@ -44,7 +50,8 @@ export class MainComponent implements OnInit {
 
     const formData = new FormData();
     formData.append('file', this.selectedFile, this.selectedFile.name);
-    formData.append('fileType', this.fileType);
+    formData.append('category', this.category);
+    formData.append('activity', this.activity);
     
     this.isLoading = true;
 

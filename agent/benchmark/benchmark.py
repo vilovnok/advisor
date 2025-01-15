@@ -20,6 +20,8 @@ class Benchmark:
         collection_name: str = 'advisor_db',
         url: str = "http://localhost:6333",
     ):
+        self.collection_name = collection_name
+        
         self._setup_database(url=url, collection_name=collection_name)
         self._setup_encoders()
 
@@ -45,7 +47,17 @@ class Benchmark:
         self.dense_embedding_model_DEEPVK_USER = SentenceTransformer(
             EmbedModelType.DEEPVK_USER.value
         )
+        self.dense_embedding_model_RUBERT_TINY2 = SentenceTransformer(
+            EmbedModelType.RUBERT_TINY2.value
+        )
+        self.dense_embedding_model_TOCHKA = SentenceTransformer(
+            EmbedModelType.TOCHKA.value
+        )
+        self.dense_embedding_model_E5_LARGE = SentenceTransformer(
+            EmbedModelType.E5_LARGE.value
+        )
         self.bm25_embedding_model = Bm25(EmbedModelType.BM25.value)
+
         self.late_interaction_embedding_model = LateInteractionTextEmbedding(
             EmbedModelType.BERT.value
         )
@@ -55,6 +67,7 @@ class Benchmark:
         query: str,
         models_list: List[str],
         limit: int,
+        topK: int,
     ) -> List[models.Prefetch]:
         """
         Создает список Prefetch для гибридного поиска.
@@ -106,6 +119,117 @@ class Benchmark:
                         limit=limit,
                     )
                 )
+            elif model_name == "cointegrated/rubert-tiny2":
+                prefetch.append(
+                    models.Prefetch(
+                        query=self.dense_embedding_model_RUBERT_TINY2.encode(
+                            query, normalize_embeddings=True
+                        ),
+                        using="cointegrated/rubert-tiny2",
+                        limit=limit,
+                    )
+                )
+            elif model_name == "Tochka-AI/ruRoPEBert-e5-base-2k":
+                prefetch.append(
+                    models.Prefetch(
+                        query=self.dense_embedding_model_TOCHKA.encode(
+                            query, normalize_embeddings=True
+                        ),
+                        using="Tochka-AI/ruRoPEBert-e5-base-2k",
+                        limit=limit,
+                    )
+                )
+            elif model_name == 'intfloat/multilingual-e5-large':
+                prefetch.append(
+                    models.Prefetch(
+                        query=self.dense_embedding_model_E5_LARGE.encode(
+                            query, normalize_embeddings=True
+                        ),
+                        using='intfloat/multilingual-e5-large',
+                        limit=limit,
+                    )
+                )
+            elif model_name == 'intfloat/multilingual-e5-large+bm25':
+                prefetch.append(
+                    models.Prefetch(
+                        query=self.dense_embedding_model_E5_LARGE.encode(
+                            query, normalize_embeddings=True
+                        ),
+                        using='intfloat/multilingual-e5-large',
+                        limit=limit
+                    )
+                )
+            elif model_name == 'Tochka-AI/ruRoPEBert-e5-base-2k+bm25':
+                prefetch.append(
+                    models.Prefetch(
+                        prefetch=[
+                            models.Prefetch(
+                        query=self.dense_embedding_model_TOCHKA.encode(
+                            query, normalize_embeddings=True
+                        ),
+                        using='Tochka-AI/ruRoPEBert-e5-base-2k',
+                        limit=limit
+                            )],
+                        query=models.SparseVector(
+                            **next(self.bm25_embedding_model.query_embed(query)).as_object()
+                        ),
+                        using="bm25",
+                        limit=limit,
+                    )
+                )
+            elif model_name == 'deepvk/USER-bge-m3+bm25':
+                                prefetch.append(
+                    models.Prefetch(
+                        prefetch=[
+                            models.Prefetch(
+                        query=self.dense_embedding_model_DEEPVK_USER.encode(
+                            query, normalize_embeddings=True
+                        ),
+                        using='deepvk/USER-bge-m3',
+                        limit=limit
+                            )],
+                        query=models.SparseVector(
+                            **next(self.bm25_embedding_model.query_embed(query)).as_object()
+                        ),
+                        using="bm25",
+                        limit=limit,
+                    )
+                )
+            elif model_name == 'all-MiniLM-L6-v2+bm25':
+                prefetch.append(
+                    models.Prefetch(
+                        prefetch=[
+                            models.Prefetch(
+                        query=next(self.dense_embedding_model_MiniLM.query_embed(query)),
+                        using='all-MiniLM-L6-v2',
+                        limit=limit
+                            )],
+                        query=models.SparseVector(
+                            **next(self.bm25_embedding_model.query_embed(query)).as_object()
+                        ),
+                        using="bm25",
+                        limit=limit,
+                    )
+                )
+            elif model_name == "cointegrated/rubert-tiny2+bm25":
+                prefetch.append(
+                    models.Prefetch(
+                        prefetch=[
+                            models.Prefetch(
+                        query=self.dense_embedding_model_RUBERT_TINY2.encode(
+                            query, normalize_embeddings=True
+                        ),
+                        using="cointegrated/rubert-tiny2",
+                        limit=limit
+                            )],
+                        query=models.SparseVector(
+                            **next(self.bm25_embedding_model.query_embed(query)).as_object()
+                        ),
+                        using="bm25",
+                        limit=limit,
+                    )
+                )
+            
             else:
                 raise ValueError(f"Unknown model: {model_name}")
 
@@ -117,6 +241,7 @@ class Benchmark:
         query: str,
         models_list: List[str],
         limit: int = 10,
+        topK: int = 10,
         filter_options: dict = None,
     ):
         """
@@ -134,7 +259,7 @@ class Benchmark:
         """
         try:
             prefetch = self.create_prefetch_from_models(
-                query=query, models_list=models_list, limit=limit
+                query=query, models_list=models_list, limit=limit, topK=topK
             )
             response = self.client.query_points(
                 collection_name=collection_name,
@@ -204,11 +329,18 @@ class Benchmark:
             limit:int=20,
             filter_options: dict=None,
         ):
-            response = self.hybrid_query_dynamic(collection_name='advisor_db', 
+            response = self.hybrid_query_dynamic(collection_name=self.collection_name, 
                             query=query_text, 
                             models_list=models_list, 
-                            limit=limit, 
+                            limit=limit,
+                            topK=topK, 
                             filter_options=filter_options)
+
+            # response = self.hybrid_query_dynamic_debug(collection_name=self.collection_name, 
+            #                 query=query_text, 
+            #                 models_list=models_list, 
+            #                 limit=limit, 
+            #                 filter_options=filter_options)
                     
             metrics = self.evaluate_ranking(ground_truth=ground_truth, 
                                     result=response, topK=topK)

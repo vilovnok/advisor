@@ -380,3 +380,73 @@ svg#clouds {
         left: 100%;
     }
 }
+
+
+
+
+.select-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 0 20px;
+    width: 100%;
+    box-sizing: border-box; 
+
+}
+
+.select-field {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #555;
+}
+
+.styled-select {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 2px solid #007BFF;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    color: #333;
+    outline: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    appearance: none;
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 16px;
+    cursor: pointer;
+}
+
+.styled-select:focus {
+    border-color: #0056b3;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.styled-select option {
+    font-size: 16px;
+}
+
+
+@media (max-width: 768px) {
+    .select-container {
+        max-width: 100%; 
+        padding: 0 15px; 
+    }
+
+    .styled-select {
+        font-size: 18px; 
+        padding: 14px; 
+    }
+
+    label {
+        font-size: 18px;
+    }
+}

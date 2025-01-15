@@ -5,7 +5,8 @@ from langchain_core.messages import BaseMessage
 
 
 class State(BaseModel):
-    catalog_name: Optional[str] = None 
+    activity_name: Optional[str] = None 
     category_name: Optional[str] = None
+    similary_name: Optional[str] = None
     hallucination: List[float] = []
     history: List[BaseMessage]

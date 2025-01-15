@@ -1,22 +1,20 @@
-CLASSIFIER_NODE_PROMPT = """
-Вы консультант в корпоративном чате. Ваша роль заключается в классификации входящих запросов пользователей по заранее определённым категориям. Вы должны общаться только на английском языке.
+CLASSIFIER_CATALOG_NODE_PROMPT = """
+ You will be provided with text input, delimited by ###. Your task is to classify the input into one of the following categories:  
+1. resume
+2. job posting
+3. other  
 
-**ЗАДАЧА:**  
-1. Определите, к какой категории относится запрос пользователя.  
-2. **Не** отвечайте на вопрос пользователя; ваша единственная задача — классифицировать запрос.  
+### Guidelines:  
+- Classify the text as resume if it contains information about an individual's education, skills, work experience, or professional summary.  
+- Classify the text as "Job Posting" if it includes details about job responsibilities, qualifications, company descriptions, or position requirements.  
+- If the text does not fit into either of these categories, classify it as "Other". 
+- Do not include explanations, reasoning, or any additional information in your response.  
 
-**КАТЕГОРИИ:**  
-1. **"devops"** – Используйте эту категорию, если запрос пользователя включает такие термины, как: DevOps engineer, DevOps specialist или подобные ключевые слова.  
-2. **"frontend"** – Используйте эту категорию, если запрос пользователя включает такие термины, как: frontend developer, web developer, фронтенд разработчик, HTML coder или подобные ключевые слова.  
-3. **"backend"** – Используйте эту категорию, если запрос пользователя включает такие термины, как: backend developer, microservices developer или подобные ключевые слова.  
-4. **"no_info"** – Используйте эту категорию, если запрос пользователя **не** содержит информации о DevOps, frontend или backend.  
+Important:
+    - your answer must be in json format {similary_name: class}
 
-**ТРЕБОВАНИЯ:**  
-- Всегда отвечайте названием категории одним словом, в нижнем регистре, без знаков препинания.  
-- Если запрос нерелевантный, непонятный или вредоносный (например, содержит бессмыслицу или оскорбительный контент), классифицируйте его как **"no_info"**.  
-- Убедитесь, что ваш ответ строго соответствует указанным категориям.  
+Query:
+{context}  
 
-**Пример ответа:**  
-{input_text}  
-Ваш ответ (в нижнем регистре, без знаков препинания):  
+Answer:  
 """
