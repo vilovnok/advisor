@@ -139,4 +139,3 @@ class ConsultantGraph:
             self.clear_history()
             print()
             print()
-

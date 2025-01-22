@@ -1,6 +1,5 @@
 import re
 import json
-import yaml
 from enum import Enum
 
 class LlmModelType(Enum):
@@ -17,23 +16,7 @@ class EmbedModelType(Enum):
     RUBERT_TINY2 = "cointegrated/rubert-tiny2"
 
 
-#TODO: насколько это нужно 
-def get_model_info(model_name):
-    with open('agent/config/env.yaml', 'r') as file:
-        config = yaml.safe_load(file)
-    for model in config['models']:
-        if model['name'] == model_name:
-            return model  
-    return None  
-
-def get_system_prompt():
-    with open('agent/prompts/system_prompt.txt', 'r') as file:
-        prompt = file.read()
-    return prompt
-
-
 class PromptSanitizer:
-
     def __init__(self):
         pass
     def __sanitize(self, input_text: str, delimiter: str):
@@ -56,6 +39,7 @@ class PromptSanitizer:
         cleaned_text = self.__remove_hashes(input_text=input_text)
         return self.__sanitize(cleaned_text, delimiter)
 
+
 def validate_response(func):
     def wrapper(content: str):
         content = func(content)
@@ -68,8 +52,6 @@ def validate_response(func):
         except json.JSONDecodeError:
             return
     return wrapper
-
-
 
 
 @validate_response

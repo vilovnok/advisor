@@ -1,4 +1,3 @@
-import re
 import openai
 from agent.utils import LlmModelType, PromptSanitizer
 from agent.vllm_server.utils import openai_key, api_base

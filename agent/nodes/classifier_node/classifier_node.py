@@ -48,6 +48,7 @@ class ClassifierNode(_BaseNode):
         content = history[-1].content
         similary_name = self.vllm.Completion(content=content, prompt=CLASSIFIER_CATALOG_NODE_PROMPT)
 
+        print(similary_name)
         if 'other' in similary_name:
             similary_name = None
 

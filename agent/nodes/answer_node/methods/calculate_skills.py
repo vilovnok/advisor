@@ -107,6 +107,7 @@ class SimilarityCalculator:
         """
         target_info = self.parse_info(target)
         results = {}
+        result_debug=[]
 
         for example in examples:
             example_info = self.parse_info(example)
@@ -128,9 +129,10 @@ class SimilarityCalculator:
                 example_info.get("Образование", "-"),
             )
 
-            similarity_score = (
-                0.8 * skills_score + 0.15 * language_score + 0.05 * education_score
-            )
-            results[example_id] = round(similarity_score, 2)
+            # similarity_score = (
+            #     0.8 * skills_score + 0.15 * language_score + 0.05 * education_score
+            # )
+            # results[example_id] = round(similarity_score, 2)
+            result_debug.append(example_id)
 
-        return results
+        return result_debug

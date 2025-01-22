@@ -21,7 +21,7 @@ class AnswerNode(_BaseNode):
     Answer Node to generate an answer based on data catalog.
     """
 
-    DATABASE_COLLECTION_NAME = "advisor_db"
+    DATABASE_COLLECTION_NAME = "advisor_last_db"
 
     def __init__(
         self,
@@ -56,8 +56,10 @@ class AnswerNode(_BaseNode):
         calculator = SimilarityCalculator()
         results = calculator.calculate_similarity_score(target, examples)
 
-        sorted_objs = sorted(results, key=results.get, reverse=True)
-        return list(map(int, sorted_objs))
+        # sorted_objs = sorted(results, key=results.get, reverse=True)
+        # return list(map(int, sorted_objs))
+
+        return list(map(int, results))
 
 
     def invoke(self, state: State) -> dict:
@@ -71,12 +73,13 @@ class AnswerNode(_BaseNode):
             dict: The processed results.
         """
         history = state.history
+
+
         point_ids = self.rank_examples(history=history)
         points = self.retriever.search_points(
             point_ids=point_ids, collection_name=AnswerNode.DATABASE_COLLECTION_NAME
         )
-
-        points = [{"title":f"{extract_job_info(point.payload['content'])}","value": point.payload['content']} for point in points]
+        points = [{"title":f"{extract_job_info(point.payload['content'])}","value": point.payload['content'],"url": point.payload['url']} for point in points]
 
         history.append(AIMessage(
             name="AnswerNode",

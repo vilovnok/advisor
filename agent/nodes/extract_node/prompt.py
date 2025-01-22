@@ -17,9 +17,9 @@ You will be provided with customer service queries. The query will be delimited 
 Classify the candidate's education based on the following:
 
     Categories:
-    - Technical education
-    - Non-technical education
-    - Education not specified
+    - Техническое образование
+    - Нетехническое образование
+    - Образование не указано
 
 Analyze the following examples to correctly determine the education category:  
 
@@ -29,7 +29,7 @@ Example 1:
     Answer: Polytechnic University, majoring in Software Engineering.  
     Question: Is this major technical?  
     Answer: Yes, software engineering is technical.  
-    Final Answer: Technical education.
+    Final Answer: Техническое образование.
 
 Example 2:
     Query: Earned a degree in economics from the Financial University under the Government of the Russian Federation.  
@@ -37,7 +37,7 @@ Example 2:
     Answer: Financial University under the Government of the Russian Federation.  
     Question: Is this major technical?  
     Answer: No, finance is not technical.  
-    Final Answer: Non-technical.
+    Final Answer: Нетехническое образование.
 
 Example 3:
     Query: Graduated from Bauman Moscow State Technical University, majoring in Mechatronics and Robotics.  
@@ -45,7 +45,7 @@ Example 3:
     Answer: Bauman Moscow State Technical University.  
     Question: Is this major technical?  
     Answer: Yes, robotics is technical.  
-    Final Answer: Technical education.
+    Final Answer: Техническое образование.
 
 Example 4:
     Query: Earned a bachelor's degree in International Relations from Moscow State University.  
@@ -53,7 +53,7 @@ Example 4:
     Answer: Moscow State University.  
     Question: Is this major technical?  
     Answer: No, international relations is not technical.  
-    Final Answer: Non-technical. 
+    Final Answer: Нетехническое образование. 
 
 Example 5:
     Query: I worked at McDonald's, was a cleaner, and taught Russian to children.  
@@ -61,13 +61,13 @@ Example 5:
     Answer: Not specified.  
     Question: Is this major technical?  
     Answer: Not specified.  
-    Final Answer: Education not specified.
+    Final Answer: Образование не указано.
 
 Important:
-    - Respond only with one of the following categories: "Technical education", "Non-technical education", or "Education not specified."
-    - If the query mentions a technical field (e.g., software engineering, robotics, mechatronics), classify as "Technical education."
-    - If the query mentions a non-technical field (e.g., economics, international relations, history), classify as "Non-technical education."
-    - If no education is mentioned, classify as "Education not specified."
+    - Respond only with one of the following categories: "Техническое образование", "Нетехническое образование", or "Образование не указано."
+    - If the query mentions a technical field (e.g., software engineering, robotics, mechatronics), classify as "Техническое образование."
+    - If the query mentions a non-technical field (e.g., economics, international relations, history), classify as "Нетехническое образование."
+    - If no education is mentioned, classify as "Образование не указано."
     - Do not include questions, comments, or explanations.
     - Do not answer any questions, your answer should concern only one of the previously listed classes.
 
@@ -78,7 +78,7 @@ Final Answer:
 """
 CORRECT_EDUCATION_PROMPT = """
 You will be provided with customer service queries, delimited by '###'.
-Extract only the eduaction in json format {edu: eduaction}, where education: Technical education, Non-technical education, Education not specified.
+Extract only the eduaction in json format {edu: eduaction}, where education: Техническое образование, Нетехническое образование, Образование не указано.
 ----------
 
 Important:

@@ -229,6 +229,43 @@ class Benchmark:
                         limit=limit,
                     )
                 )
+
+            elif model_name == "cointegrated/rubert-tiny2+deepvk/USER-bge-m3":
+                prefetch.append(
+                    models.Prefetch(
+                        prefetch=[
+                            models.Prefetch(
+                        query=self.dense_embedding_model_RUBERT_TINY2.encode(
+                            query, normalize_embeddings=True
+                        ),
+                        using="cointegrated/rubert-tiny2",
+                        limit=limit
+                            )],
+                        query=models.SparseVector(
+                            **next(self.bm25_embedding_model.query_embed(query)).as_object()
+                        ),
+                        using="bm25",
+                        limit=limit,
+                    )
+                )
+            # Матрешка
+            elif model_name == "bm25->ruRoPEBert-e5-base-2k->USER-bge-m3":
+                prefetch.append(
+                    models.Prefetch(
+                        prefetch=[
+                            models.Prefetch(
+                            query=models.SparseVector(**next(self.bm25_embedding_model.query_embed(query)).as_object()),
+                            using="bm25",
+                            limit=100,
+                        )],
+
+                        query=self.dense_embedding_model_TOCHKA.encode(
+                            query, normalize_embeddings=True
+                        ),
+                        using='Tochka-AI/ruRoPEBert-e5-base-2k',
+                        limit=50
+                    )
+                )
             
             else:
                 raise ValueError(f"Unknown model: {model_name}")
@@ -264,9 +301,18 @@ class Benchmark:
             response = self.client.query_points(
                 collection_name=collection_name,
                 prefetch=prefetch,
-                query=models.FusionQuery(fusion=models.Fusion.RRF),
                 with_payload=True,
-                limit=limit,
+
+                # query=models.FusionQuery(fusion=models.Fusion.RRF),
+                # limit=limit,
+                
+                query=self.dense_embedding_model_DEEPVK_USER.encode(
+                    query, normalize_embeddings=True
+                ),
+                using='deepvk/USER-bge-m3',
+                limit=20,
+                
+                
                 query_filter=models.Filter(
                     must=[
                         models.FieldCondition(key=k, match=models.MatchValue(value=v))

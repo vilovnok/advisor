@@ -139,6 +139,45 @@ class Retriever(Mixin):
             return results
         except Exception as error:
             raise Exception(f'Ошибка при поиске: {error}')
+        
+    def hybrid_search(self, collection_name: str, 
+                            query: str,
+                            topK: int = 10,
+                            filter_options: dict = None):
+        
+        try:
+            dense_embedding_model_DEEPVK_USER = self._setup_model(model_type=EmbedModelType.DEEPVK_USER)
+            dense_embedding_model_TOCHKA = self._setup_model(model_type=EmbedModelType.TOCHKA)
+            bm25_embedding_model = self._setup_model(model_type=EmbedModelType.BM25)
+
+            prefetch = models.Prefetch(
+                prefetch=[
+                    models.Prefetch(
+                    query=models.SparseVector(**next(bm25_embedding_model.query_embed(query)).as_object()),
+                    using="bm25",
+                    limit=100)],
+                query=dense_embedding_model_TOCHKA.encode(text=query),
+                using='Tochka-AI/ruRoPEBert-e5-base-2k',
+                limit=50
+            )
+
+            response = self._client.query_points(
+                collection_name=collection_name,
+                prefetch=prefetch,
+                with_payload=True,
+                query=dense_embedding_model_DEEPVK_USER.encode(query, normalize_embeddings=True),
+                using='deepvk/USER-bge-m3',
+                limit=topK,
+                query_filter=models.Filter(
+                    must=[
+                        models.FieldCondition(key=k, match=models.MatchValue(value=v))
+                        for k, v in filter_options.items()
+                    ]
+                ) if filter_options else None,
+            )
+            return response
+        except Exception as e:
+            raise ValueError(f"Error during query: {e}")
 
     def create_database(self, 
                         dense_embeddings: list, 

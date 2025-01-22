@@ -8,9 +8,10 @@ import { ActivatedRoute, Router } from '@angular/router';
   styleUrls: ['./rank.component.scss']
 })
 export class RankComponent implements OnInit {
-  items: { title: string, value: string }[] = [];
+  items: { title: string, value: string, url: string }[] = [];
   isDialogOpen = false;
   dialogContent = '';
+  url = '';
 
   constructor(private location: Location, private route: ActivatedRoute, private router: Router) { }
   ngOnInit(): void {
@@ -52,5 +53,9 @@ export class RankComponent implements OnInit {
   closeDialog(): void {
     this.isDialogOpen = false;
     this.dialogContent = '';
+  }
+
+  navigateTo(link: string) {
+    window.open(link, '_blank');
   }
 }

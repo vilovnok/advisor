@@ -83,6 +83,7 @@ class ExtractNode(_BaseNode):
             "education": education
         }
         profile = generate_summary(data=data)
+        print(profile)
         state.history.append(AIMessage(content=profile))
         
         if self.show_logs:
