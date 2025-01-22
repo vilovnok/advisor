@@ -12,7 +12,6 @@ class Mixin:
             collection_name=collection_name,
             ids=point_ids,
         )
-
         return points
     
     def get_all_files(self):
@@ -31,8 +30,6 @@ class Mixin:
             df_combined = pd.concat([df_combined, df], ignore_index=True)
         
         return df_combined
-
-
 
 class ModelEncoder:
     def __init__(self, model_name: EmbedModelType):
@@ -72,4 +69,3 @@ class ModelEncoder:
         except Exception as e:
             print(f"Ошибка при получении эмбеддинга: {e}")
             return None
-        
