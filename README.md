@@ -42,30 +42,40 @@ docker-compose up -d
 poetry install
 ```
 
-3. Подгрузить данные с HH
+3. Подключаемся к venv
+```bash
+poetry shell
+```
+
+4. Запускаем vLLM c моделью QWEN
+```bash
+poetry run python -m agent.vllm_server.run
+```
+
+5. Подгрузить данные с HH
 Например, загрузить 100 вакансий и резюме
 ```bash
 poetry run python scraper/main.py --topic "Devops разработчик" --area 1  --limit_page 4 --limit_objects 100
 ```
 
-4. Преобразовать полученные данные в csv файлы
+6. Преобразовать полученные данные в csv файлы
 ```bash
 poetry run python scraper/forge_dataset.py
 ```
 
-5. Создаем коллекцию для данных в Qdrant
+7. Создаем коллекцию для данных в Qdrant
 ```bash
 poetry run python agent/database/main.py --act create --coll_name advisor_db
 ```
 
-6. Загружаем преобразованные данные в Qdrant
+8. Загружаем преобразованные данные в Qdrant
 ```bash
 poetry run python agent/database/main.py --act upload --coll_name advisor_db
 ```
 
-7. Запускаем API для взаимодействия с агентом
+9. Запускаем API для взаимодействия с агентом
 ```bash
 poetry run python -m backend.main
 ```
 
-8. Переходим по адресу [http://localhost:4200](http://localhost:4200)
+10. Переходим по адресу [http://localhost:4200](http://localhost:4200)
