@@ -36,8 +36,14 @@ class RetrieverNode(_BaseNode):
 
     def invoke(self, state: State):
         history = state.history
-        activity_name = state.activity_name  
-        category_name = 'cv' if state.category_name=='vac' else 'cv'
+
+        activity_name = state.activity_name          
+        category_name = state.category_name
+        
+        if category_name=='vacancy':
+            category_name = 'cv'
+        elif category_name=='resume':
+            category_name = 'vac'    
     
         # retrieved_info = self.retriever.search(
         #     query=history[-1].content,
@@ -51,7 +57,6 @@ class RetrieverNode(_BaseNode):
         retrieved_info = self.retriever.hybrid_search(
             query=history[-1].content,
             collection_name=RetrieverNode.DATABASE_COLLECTION_NAME,
-            # filter_options={"catalog": category_name},
             filter_options={"catalog": category_name, 'category': activity_name},
         )
         
