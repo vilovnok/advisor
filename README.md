@@ -84,7 +84,7 @@ poetry run python -m backend.main
       author={Richard Gurtsiev},
       year={2025},
       eprint={https://habr.com/ru/articles/874708/},
-      archivePrefix={GitHub},
+      archivePrefix={Hubr},
       primaryClass={cs.IR}
 }
 ```
