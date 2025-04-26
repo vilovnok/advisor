@@ -4,8 +4,8 @@ import argparse
 from .core import ScrapMaster
 
 
-api_key = 'hIBq3oF9S5hz3YmoxEDmxK9OmZW91BSx'        
-model = "mistral-large-latest"
+api_key = '<your mistral token>'        
+model = "<your mistral model>"
 
 data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data')
 

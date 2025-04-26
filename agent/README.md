@@ -1,38 +1,38 @@
 
 # Agent
-
-Этот модуль представляет создание агента, предназначенного для эффективной и интеллектуальной автоматизации задач. Агент использует возможности **LangGraph** для организации рабочих процессов и **vLLM** для выполнения сложных задач обработки резюме и вакансий. Ниже представлены ключевые особенности, инструкция по запуску.
-
----
-
-## 🚀 Особенности
-
-1. **Рабочий процесс на основе LangGraph**:
-   - Модульная и расширяемая структура.
-   - Простая интеграция пользовательских узлов и логики.
-   - Высокая гибкость и удобство поддержки.
-
-2. **Интеллектуальная обработка на базе vLLM**:
-   - Ускоренный вывод благодаря vLLM для уменьшения задержек.
-   - Способность эффективно решать сложные задачи обработки естественного языка.
-   - Масштабируемость для работы с большими моделями.
-
-3. **Настраиваемый и конфигурируемый**:
-   - Удобный API для определения и расширения возможностей Агента.
-   - Поддержка дополнительных интеграций при необходимости.
+![graph](../images/graph_network.png)
+This module represents the creation of an agent designed for efficient and intelligent task automation. The agent leverages **LangGraph** to organize workflows and **vLLM** to perform complex processing of resumes and vacancies. Below are the key features and launch instructions.
 
 ---
 
-## 🛠 Инструкции по запуску
+## 🚀 Features
 
-1. Запустите vLLM c моделью QWEN:
+1. **Workflow Based on LangGraph**:
+   - Modular and extensible architecture
+   - Easy integration of custom nodes and logic
+   - High flexibility and maintainability
+
+2. **Intelligent Processing Powered by vLLM**:
+   - Accelerated inference with vLLM for reduced latency
+   - Efficient handling of complex natural language processing tasks
+   - Scalable for working with large models
+
+3. **Customizable and Configurable**:
+   - User-friendly API to define and expand the agent's capabilities
+   - Support for additional integrations if needed
+
+---
+
+## 🛠 Launch Instructions
+
+1. Start the vLLM server with the QWEN model:
    ```bash
    poetry run python -m agent.vllm_server.run
    ```
 
-2. Заполните example.txt контентом об резюме или вакансии.
+2. Fill example.txt with content related to a resume or vacancy.
 
-3. Запустите Агента:
+3. Launch the Agent:
    ```bash
    poetry run python -m agent.main.py
    ```

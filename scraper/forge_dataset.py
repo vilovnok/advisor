@@ -199,7 +199,7 @@ class ForgeDataset(Mixin):
         print(f"CSV файл успешно создан: {file_path}")
 
 
-
+        
 
 forge = ForgeDataset()
 
@@ -216,14 +216,3 @@ documents = forge.run(limit=20)
 
 forge.save_to_csv(documents['vac_content'], f'{formatted_date}', 'vac')
 forge.save_to_csv(documents['cv_content'], f'{formatted_date}', 'cv')
-
-# print(documents['cv_content'].keys())
-
-# # создаем датасет
-# cv_dataset, vac_dataset = forge.dataset(documents)
-# print('датасеты сформированы')
-
-# # сохраняем датасеты
-# forge.save_to_disk(vac_dataset, f'{formatted_date}', 'vac')
-# forge.save_to_disk(cv_dataset, f'{formatted_date}', 'cv')
-
