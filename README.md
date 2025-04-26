@@ -1,12 +1,15 @@
 # Advisor
 [View Presentation](https://docs.google.com/presentation/d/1MfScovZ28nzBBk5KeICxhf5TCSnhVDVovYoiV2m7L3s/edit?usp=sharing)
 
-![metrics](https://habrastorage.org/r/w1560/getpro/habr/upload_files/47c/fe1/30f/47cfe130fd789300b1bfaf2baf9e52aa.jpg)
----
+![metrics](images/billboard.png)
 
 **Advisor** is a system designed to provide personalized recommendations for both candidates and HR agents. The primary goal of the project is to automate the matching of the most suitable vacancies or resumes based on input content analysis.
 
 ---
+
+**<span style="color:orange">Metrics</span>**
+
+![metrics](https://habrastorage.org/r/w1560/getpro/habr/upload_files/47c/fe1/30f/47cfe130fd789300b1bfaf2baf9e52aa.jpg)
 
 ## 🛠  Core Features
 
