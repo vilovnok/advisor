@@ -1,5 +1,5 @@
 # Advisor
-[View Presentation](https://docs.google.com/presentation/d/1MfScovZ28nzBBk5KeICxhf5TCSnhVDVovYoiV2m7L3s/edit?usp=sharing)
+[View Presentation](https://docs.google.com/presentation/d/1MfScovZ28nzBBk5KeICxhf5TCSnhVDVovYoiV2m7L3s/edit?usp=sharing) | [article](https://habr.com/ru/articles/874708/)
 
 ![metrics](images/billboard.png)
 
