@@ -36,53 +36,55 @@
 
 Advisor streamlines the employment process and makes interactions between candidates and employers more efficient.
 
-
 ## ⚙️ Setup Instructions
 
 1. Start Docker containers:
 ```bash
 docker-compose up -d
 ```
-
 2. Install dependencies:
 ```bash
 poetry install
 ```
-
 3. Activate the virtual environment:
 ```bash
 poetry shell
 ```
-
 4. Start the vLLM server with the QWEN model:
 ```bash
 poetry run python -m agent.vllm_server.run
 ```
-
 5. Fetch data from HeadHunter  
 For example, load 100 vacancies and resumes:
 ```bash
 poetry run python scraper/main.py --topic "Devops разработчик" --area 1  --limit_page 4 --limit_objects 100
 ```
-
 6. Convert the fetched data into CSV files:
 ```bash
 poetry run python scraper/forge_dataset.py
 ```
-
 7. Create a collection in Qdrant
 ```bash
 poetry run python agent/database/main.py --act create --coll_name advisor_db
 ```
-
 8. Upload the processed data to Qdrant
 ```bash
 poetry run python agent/database/main.py --act upload --coll_name advisor_db
 ```
-
 9. Start the backend API for interaction with the agent
 ```bash
 poetry run python -m backend.main
 ```
-
 10. Open the web interface at [http://localhost:4200](http://localhost:4200)
+
+## Citation
+```bibtex
+@misc{esser2021taming,
+      title={Advisor: помощник по трудоустройству}, 
+      author={Richard Gurtsiev},
+      year={2025},
+      eprint={https://habr.com/ru/articles/874708/},
+      archivePrefix={GitHub},
+      primaryClass={cs.IR}
+}
+```
